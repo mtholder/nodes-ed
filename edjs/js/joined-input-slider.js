@@ -86,12 +86,12 @@ function JoinedInputSlider(config) {
 }
 
 
-Y.extend(JoinedInputSlider, Y.Widget, {
+Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
         // identifies the classname applied to the value field
-        INPUT_CLASS : Y.ClassNameManager.getClassName(JoinedInputSlider.NAME, "value"),
+        INPUT_CLASS : Y.ClassNameManager.getClassName('joinedInputSlider', "value"),
         
         // used to create JoinedInputSlider DOM elements 
-        INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName(JoinedInputSlider.NAME, "value") + '">',
+        INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName('joinedInputSlider', "value") + '">',
         SLIDER_TEMPLATE : '<span class="horiz_slider"></span>',
         
         // Used to configure widget frome the value html attribute on the markup on the page
@@ -170,11 +170,11 @@ Y.extend(JoinedInputSlider, Y.Widget, {
 		_renderInput : function() {
 			//Y.log('in renderInput');
 			var contentBox = this.get("contentBox"),
-				input = contentBox.one("." + JoinedInputSlider.INPUT_CLASS),
+				input = contentBox.one("." + this.INPUT_CLASS),
 				strings = this.get("strings");
 
 			if (!input) {
-				input = Y.Node.create(JoinedInputSlider.INPUT_TEMPLATE);
+				input = Y.Node.create(this.INPUT_TEMPLATE);
 				contentBox.appendChild(input);
 			}
 
@@ -198,7 +198,7 @@ Y.extend(JoinedInputSlider, Y.Widget, {
 		  },
 
 		_createSlider : function(text, className) {
-			var btn = Y.Node.create(JoinedInputSlider.SLIDER_TEMPLATE);
+			var btn = Y.Node.create(this.SLIDER_TEMPLATE);
 			//btn.set("innerHTML", text);
 			btn.set("title", text);
 			btn.addClass(className);
@@ -332,7 +332,7 @@ Y.extend(JoinedInputSlider, Y.Widget, {
 			return b;
 	  }
 	}, {
-    NAME :  "dualInputSlider", // required for Widget classes and used as event prefix
+    NAME :  "joinedInputSlider", // required for Widget classes and used as event prefix
 
     ATTRS : {
         min :	{ value : 0 },
