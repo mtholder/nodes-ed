@@ -20,7 +20,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
             value: function (srcNode) {
                 var val = +srcNode.get("value"); 
                 //Y.log("In HTML_PARSER val= " + val); 
-                return (Y.Lang.isNumber(val) ? val : null);
+                return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
             }
         },
         initializer: function(config) {
@@ -39,7 +39,8 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
 			// Create a horizontal Slider using all defaults
 			var configVi = this.get('value'),
-			    valueInitial = (NdEjs.isNone(configVi) ? this.valueMin + 0.1*this.valueRange : configVi);
+			    valueInitial;
+			valueInitial = (!configVi ? this.valueMin + 0.1*this.valueRange : configVi);
 			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.valueMin);
 			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
 				this.set('sliderLength', 200);

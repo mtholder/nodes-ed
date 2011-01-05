@@ -53,7 +53,7 @@ body {
   <canvas width="400" height="30" id="patternProbCanvas"></canvas>
 </div>
 <div id="widget-extend-example">
-	Moving toward DualInputSlider Widget: <input type="text" id="numberField" class="yui3-dualInputSlider-loading" value="0.15" />
+	Moving toward DualInputSlider Widget: <input type="text" id="numberField" class="yui3-dualInputSlider-loading"  />
 	<p class="hint">Click the buttons, or the arrow up/down and page up/down keys on your keyboard to change the spinner's value</p>
 </div>
 <div id="treeAB">
@@ -97,15 +97,18 @@ if (DEBUGGING) {
 	new Y.Console({height : 900}).render();
 }
 	try {
-		var jInpSlid = new Y.JoinedInputSlider({
-			srcNode: "#numberField",
+		var jInpSlider, srcNode;
+		srcNode = Y.one("#numberField");
+		jInpSlider = new Y.JoinedInputSlider({
+		    srcNode : srcNode,
+			value : srcNode.get("value"),
 			max : 0.5,
 			min : 0.0,
 			minorStep : 0.0001,
 			majorStep : 0.01,
 		});
-		jInpSlid.render();
-		jInpSlid.focus();
+		jInpSlider.render();
+		jInpSlider.focus();
 	}
 	catch (e) {
 		NdEjs.logException(e, Y.log); 
