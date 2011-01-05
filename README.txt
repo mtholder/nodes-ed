@@ -23,12 +23,13 @@ and stacktrace.js from:
 Note that the examples expect the following structure of files where the top
 directory is the DOCUMENT_ROOT for your html files:
 
+$DOCUMENT_ROOT/lib/yui2/build/reset-fonts-grids/reset-fonts-grids.css
 $DOCUMENT_ROOT/lib/yui3/build/cssfonts/fonts-min.css
 $DOCUMENT_ROOT/lib/yui3/build/yui/yui-min.js
 $DOCUMENT_ROOT/lib/stacktrace.js
 $DOCUMENT_ROOT/lib/nodes-ed.js
 
-In short, you install both yui3 and stacktrace.js to $DOCUMENT_ROOT/lib, and 
+In short, you install yui2, yui3, and stacktrace.js to $DOCUMENT_ROOT/lib, and 
 when you do the install of nodes-ed you use the default location for 
 make install.
 
