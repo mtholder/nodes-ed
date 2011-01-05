@@ -1,8 +1,6 @@
 Introduction
 ============
-nodes-ed is ECMAScript library for dealing with phylogenetic data.  Currently 
-it depends on the YUI3 library:
-    http://developer.yahoo.com/yui/3
+nodes-ed is ECMAScript library for dealing with phylogenetic data.  
 
 It doesn't do much yet. 
 
@@ -13,21 +11,27 @@ JoinedInputSlider - a YUI3 widget (based off of the YUI3 spinner example) that
 creates a joined input text box and slider that lets the user specify a floating
 point number with min and max (and keeps the slider in sync with the input box).
 
-Example
+
+Dependencies
 ============
-See the examples directory.  Note that the examples expect the following 
-structure of files where the top directory is the DOCUMENT_ROOT for your html
-files:
+nodes-ed.js currently depends on the YUI3 library:
+    http://developer.yahoo.com/yui/3
+and stacktrace.js from:
+    https://github.com/emwendelin/javascript-stacktrace
+(the latter is used for logging exceptions).
+
+Note that the examples expect the following structure of files where the top
+directory is the DOCUMENT_ROOT for your html files:
 
 $DOCUMENT_ROOT/lib/yui3/build/cssfonts/fonts-min.css
 $DOCUMENT_ROOT/lib/yui3/build/yui/yui-min.js
 $DOCUMENT_ROOT/lib/stacktrace.js
 $DOCUMENT_ROOT/lib/nodes-ed.js
 
-Which can be obtained by installing yui3 in $DOCUMENT_ROOT/lib and 
-installing stacktrace.js from:
-    https://github.com/emwendelin/javascript-stacktrace
-to the lib.
+In short, you install both yui3 and stacktrace.js to $DOCUMENT_ROOT/lib, and 
+when you do the install of nodes-ed you use the default location for 
+make install.
+
 
 Installation
 ============
@@ -55,6 +59,9 @@ that for the html docs that you are serving, then you can use:
 
 to put nodes-ed-min.js into "$DOCUMENT_ROOT/lib"
 
+Example
+============
+See the examples directory.
 
 
 
