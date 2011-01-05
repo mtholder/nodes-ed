@@ -16,10 +16,11 @@ install: build_tmp/nodes-ed-min.js
 	if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
 	cp build_tmp/nodes-ed-min.js "$(DOCUMENT_ROOT)/lib/"
 	cp build_tmp/nodes-ed.js "$(DOCUMENT_ROOT)/lib/"
-
+	echo ; echo "Successfully installed node-ed.js and nodes-ed-min.js to $(DOCUMENT_ROOT)/lib"; echo
 
 EXAMPLE_FILES = ../examples/tree-likelihood-viz/tree_likelihood_viz.html
 
 installexamples: $(EXAMPLE_FILES)
 	if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
 	cp  $(EXAMPLE_FILES) "$(DOCUMENT_ROOT)/"
+	echo ; echo "Successfully installed examples to $(DOCUMENT_ROOT)"; echo
