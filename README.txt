@@ -26,7 +26,7 @@ $DOCUMENT_ROOT/lib/nodes-ed.js
 
 Which can be obtained by installing yui3 in $DOCUMENT_ROOT/lib and 
 installing stacktrace.js from:
-    https://github.com/emwendelin/javascript-stacktrace.git
+    https://github.com/emwendelin/javascript-stacktrace
 to the lib.
 
 Installation
