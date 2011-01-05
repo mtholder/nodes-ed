@@ -106,7 +106,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			//logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
 
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
-
+            this._uiInvalid = false;
 			this.valueMax = this.get('max'); 
 			this.valueMin = this.get('min');
 			if (isNone(this.valueMax) || isNone(this.valueMin) || (this.valueMax < this.valueMin)) {
@@ -164,7 +164,9 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 
 		syncUI : function() {
 			//Y.log('in syncUI');
-			this._uiSetValue(this.get("value"));
+			if (!this._uiInvalid) {
+			    this._uiSetValue(this.get("value"));
+			}
 		},
 
 		_renderInput : function() {
@@ -248,11 +250,17 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			//Y.log('in _onInputChange');
 			var iv = this.inputNode.get("value");
 			if (!this._validateValue(iv)) {
-				this.inputNode.setStyle("color", "red");
+			    if (!this._uiInvalid) {
+				    this.inputNode.setStyle("color", "red");
+				    this._uiInvalid = true;
+				}
 				this.syncUI();
 			}
 			else {
-				this.inputNode.setStyle("color", "black");
+			    if (this._uiInvalid) {
+				    this.inputNode.setStyle("color", "black");
+				    this._uiInvalid = false;
+				}
 				this.set('value', iv);
 			}
 		},
@@ -291,25 +299,34 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			}
 		},
 
-		// updates the input box when the value changes
+		// updates the input box when the value changes.  
+		// The e.newVal has already been checked by _validateValue, 
+		// so it should be good (I think).
 		_afterValueChange : function(e) {
 			//Y.log('in _afterValueChange');
+			if (this._uiInvalid) {
+                this.inputNode.setStyle("color", "black");
+				this._uiInvalid = false;
+			}
 			this._uiSetValue(e.newVal);
 		},
 
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
-			//Y.log('in _uiSetValue(' + val + ')');
 			var nodeV = this.inputNode.get("value"),
+			    nVal = +val,
+			    nNodeV,
 			    sliderValue;
-			if (Math.abs(+val - +nodeV) > 1e-9) {
-				this.inputNode.set("value", val.toFixed(9).replace(/0+$/, '0'));
+			nNodeV = +nodeV;
+			Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
+			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
+				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
 			}
 			else {
 				//Y.log('prev was ' + nodeV + ' not changing');
 				
 			}
-			sliderValue = this.sliderMin + this.slider2InputDenom*(val - this.valueMin);
+			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.valueMin);
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
 			}
