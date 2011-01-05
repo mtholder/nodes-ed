@@ -1,49 +1,108 @@
 
 
+// write all of the non-function properties of an object to the log opts = {prefix : '', level : 'info'}
+function logObjectData(o, f, opts) {
+	var lines = [],
+	    p,
+	    level,
+	    a;
+	for (a in o) {
+		if (!(typeof o[a] === 'function')) {
+			lines[lines.length] = String(a) + " = " + String(o[a]);
+		}
+	}
+	p = opts.prefix || '';
+	level = opts.level || 'info';
+	f(p + 'Object : ' + o + '\n	 ' + lines.join('\n	 '), level);
+}
 
+// write all of the properties of an object to the log opts = {prefix : '', level : 'info'}
+function logObject(o, f, opts) {
+	var lines = [],
+	    p,
+	    level,
+	    a;
+	for (a in o) {
+	    if (o.hasOwnProperty(a)) {
+    		lines[lines.length] = String(a) + " = " + String(o[a]);
+    	}
+	}
+	p = opts.prefix || '';
+	level = opts.level || 'info';
+	f(p + 'Object : ' + o + '\n	 ' + lines.join('\n	 '), level);
+}
+// log an exception to function f
+function logException(e, f) {
+	try {
+		var st = printStackTrace({e : e});
+		f("Exception: name=" + e.name + ' message=' + e.message +  '\n' + st.join('\n  '), "error");
+	}
+	catch (ex) {
+		logObject(e, f, {prefix : 'Exception without stacktrace'});
+		logObject(ex, f, {prefix : 'Exception during stacktrace'});
+	}
+}
+
+// returns false if o is null or undefined
+function isNone(o) {
+	return (o === null || o === undefined);
+}
+// returns false if o is null or undefined
+function isNotNone(o) {
+	return !(o === null || o === undefined);
+}
+// takes a collection of key values, and returns all of the keys that don't have
+//	values that are undefined or null
+function getNotNonePairs(o, keyList) {
+	var r = {},
+	    v,
+	    a,
+	    i;
+	if (keyList instanceof Array) {
+		for (i = 0; i < keyList.length; ++i) {
+		    a = keyList[i];
+			v = o[a];
+			if (isNotNone(v)) {
+				r[a] = v;
+			}
+		}
+	}
+	else {
+		for (a in o) {
+    	    if (o.hasOwnProperty(a)) {
+                v = o[a];
+                if (isNotNone(v)) {
+                    r[a] = v;
+                }
+            }
+		}
+	}
+	return r;
+}
 //Y.log("starting to declare JoinedInputSlider");
 // ctor...
 function JoinedInputSlider(config) {
 	JoinedInputSlider.superclass.constructor.apply(this, arguments);
 }
-JoinedInputSlider.NAME = "dualInputSlider"; // required for Widget classes and used as event prefix
-JoinedInputSlider.SETABLE_ATTRS = ['min', 'max', 'value', 'minorStep', 'majorStep' ]; // mth convention for attrs that may be in the ctor config
-JoinedInputSlider.ATTRS = {
-	min :	{ value : 0 },
-	max :	{ value : 100},
-	value : { value : null,
-			  validator : function(val) {
-					return this._validateValue(val);
-				}
-			},
-	minorStep : { value : 1},
-	majorStep : { value : 10},
-	sliderLength : { value : 150},
-	strings:	{ value :	{
-						tooltip: "Press the arrow up/down keys for minor increments, page up/down for major increments.",
-						slider: "Slider"
-					}
-				}
-};
 
-// identifies the classname applied to the value field
-JoinedInputSlider.INPUT_CLASS = Y.ClassNameManager.getClassName(JoinedInputSlider.NAME, "value");
 
-// used to create JoinedInputSlider DOM elements 
-JoinedInputSlider.INPUT_TEMPLATE = '<input type="text" class="' + JoinedInputSlider.INPUT_CLASS + '">';
-//JoinedInputSlider.BTN_TEMPLATE = '<button type="button"></button>';
-JoinedInputSlider.SLIDER_TEMPLATE = '<span class="horiz_slider"></span>';
-
-// Used to configure widget frome the value html attribute on the markup on the page
-JoinedInputSlider.HTML_PARSER = {
-	value: function (srcNode) {
-		var val = +srcNode.get("value"); 
-		//Y.log("In HTML_PARSER val= " + val); 
-		return (Y.Lang.isNumber(val) ? val : null);
-	}
-};
-Y.extend(JoinedInputSlider, Widget, {
-		initializer: function(config) {
+Y.extend(JoinedInputSlider, Y.Widget, {
+        // identifies the classname applied to the value field
+        INPUT_CLASS : Y.ClassNameManager.getClassName(JoinedInputSlider.NAME, "value"),
+        
+        // used to create JoinedInputSlider DOM elements 
+        INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName(JoinedInputSlider.NAME, "value") + '">',
+        SLIDER_TEMPLATE : '<span class="horiz_slider"></span>',
+        
+        // Used to configure widget frome the value html attribute on the markup on the page
+        HTML_PARSER : {
+            value: function (srcNode) {
+                var val = +srcNode.get("value"); 
+                //Y.log("In HTML_PARSER val= " + val); 
+                return (Y.Lang.isNumber(val) ? val : null);
+            }
+        },
+        initializer: function(config) {
 			//logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
 
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
@@ -115,7 +174,7 @@ Y.extend(JoinedInputSlider, Widget, {
 				strings = this.get("strings");
 
 			if (!input) {
-				input = Node.create(JoinedInputSlider.INPUT_TEMPLATE);
+				input = Y.Node.create(JoinedInputSlider.INPUT_TEMPLATE);
 				contentBox.appendChild(input);
 			}
 
@@ -272,4 +331,25 @@ Y.extend(JoinedInputSlider, Widget, {
 			//Y.log('_validateValue(' + val + ') returning ' + b + '(' + n + ', ' + low + ', ' + high + ')');
 			return b;
 	  }
-	});
+	}, {
+    NAME :  "dualInputSlider", // required for Widget classes and used as event prefix
+
+    ATTRS : {
+        min :	{ value : 0 },
+        max :	{ value : 100},
+        value : { value : null,
+                  validator : function(val) {
+                        return this._validateValue(val);
+                    }
+                },
+        minorStep : { value : 1},
+        majorStep : { value : 10},
+        sliderLength : { value : 150},
+        strings:	{ value :	{
+                            tooltip: "Press the arrow up/down keys for minor increments, page up/down for major increments.",
+                            slider: "Slider"
+                        }
+                    }
+        }
+    
+});
