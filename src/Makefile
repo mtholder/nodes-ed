@@ -15,3 +15,4 @@ install: build_tmp/nodes-ed-min.js
 	if test -z $(DOCUMENT_ROOT) ; then echo "DOCUMENT_ROOT must be set!" && false ; fi
 	cp build_tmp/nodes-ed-min.js "$(DOCUMENT_ROOT)/lib/"
 	cp build_tmp/nodes-ed.js "$(DOCUMENT_ROOT)/lib/"
+	echo ; echo "Successfully installed to $(DOCUMENT_ROOT)/lib"; echo
