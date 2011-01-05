@@ -24,13 +24,13 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
             }
         },
         initializer: function(config) {
-			//logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
+			//NdEjs.logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
 
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
             this._uiInvalid = false;
 			this.valueMax = this.get('max'); 
 			this.valueMin = this.get('min');
-			if (isNone(this.valueMax) || isNone(this.valueMin) || (this.valueMax < this.valueMin)) {
+			if (NdEjs.isNone(this.valueMax) || NdEjs.isNone(this.valueMin) || (this.valueMax < this.valueMin)) {
 				throw {name : 'Error' , message : 'JoinedInputSlider max must be >= min'};
 			}
 			this.valueRange = this.valueMax - this.valueMin;
@@ -39,9 +39,9 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
 			// Create a horizontal Slider using all defaults
 			var configVi = this.get('value'),
-			    valueInitial = (isNone(configVi) ? this.valueMin + 0.1*this.valueRange : configVi);
+			    valueInitial = (NdEjs.isNone(configVi) ? this.valueMin + 0.1*this.valueRange : configVi);
 			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.valueMin);
-			if (isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
+			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
 				this.set('sliderLength', 200);
 			}
 			this.sliderBinSize = 1/this.get('sliderLength');
@@ -198,7 +198,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 					return;
 			}
 			//Y.log('in _onKeyUp not a DirectionKey');
-			//logObjectData(e, Y.log, {prefix: 'event'});
+			//NdEjs.logObjectData(e, Y.log, {prefix: 'event'});
 			
 			this._onInputChange(e);
 
@@ -239,7 +239,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			    nNodeV,
 			    sliderValue;
 			nNodeV = +nodeV;
-			Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
+			//Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
 			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
 				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
 			}
@@ -261,13 +261,8 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 		// returns true if the value is valid
 		_validateValue: function(val) {
 			var min = this.get("min"), 
-			    max = this.get("max"),
-			    n = (Y.Lang.isNumber(+val)),
-			    low = +val >= +min,
-			    high =  +val <= +max,
-			    b = n && low && high;
-			//Y.log('_validateValue(' + val + ') returning ' + b + '(' + n + ', ' + low + ', ' + high + ')');
-			return b;
+			    max = this.get("max");
+			return (Y.Lang.isNumber(+val)) && (+val >= +min) && (+val <= +max);
 	  }
 	}, {
     NAME :  "joinedInputSlider", // required for Widget classes and used as event prefix

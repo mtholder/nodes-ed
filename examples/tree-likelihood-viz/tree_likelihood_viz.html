@@ -18,8 +18,7 @@ body {
 <link type="text/css" rel="stylesheet" href="./lib/yui3/build/cssfonts/fonts-min.css" />
 <script type="text/javascript" src="./lib/yui3/build/yui/yui-min.js"></script>
 <script type="text/javascript" src="./lib/stacktrace.js"></script>
-<script type="text/javascript" src="./lib/mthutil.js"></script>
-<script type="text/javascript" src="./lib/edjs/joined-input-slider-min.js"></script>
+<script type="text/javascript" src="./lib/nodes-ed.js"></script>
 <style type="text/css">
 	#demo input {
 		width: 2em;
@@ -98,20 +97,20 @@ if (DEBUGGING) {
 	new Y.Console({height : 900}).render();
 }
 	try {
-		var spinner = new Y.JoinedInputSlider({
+		var jInpSlid = new Y.JoinedInputSlider({
 			srcNode: "#numberField",
 			max : 0.5,
 			min : 0.0,
 			minorStep : 0.0001,
 			majorStep : 0.01,
 		});
-		spinner.render();
-		spinner.focus();
+		jInpSlid.render();
+		jInpSlid.focus();
 	}
 	catch (e) {
-		logException(e, Y.log); 
+		NdEjs.logException(e, Y.log); 
 		try {
-			logException(e, Y.log);
+			NdEjs.logException(e, Y.log);
 		}
 		catch (ee) {
 			Y.log("EE = " + ee);
