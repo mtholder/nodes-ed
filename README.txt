@@ -1,46 +1,69 @@
- Introduction
+Introduction
 ============
 nodes-ed is ECMAScript library for dealing with phylogenetic data.  Currently 
 it depends on the YUI3 library:
-    http://developer.yahoo.com/yui/3/
+    http://developer.yahoo.com/yui/3
+
+It doesn't do much yet. 
+
+Features
+============
+
+JoinedInputSlider - a YUI3 widget (based off of the YUI3 spinner example) that 
+creates a joined input text box and slider that lets the user specify a floating
+point number with min and max (and keeps the slider in sync with the input box).
+
+Example
+============
+See the examples directory.  Note that the examples expect the following 
+structure of files where the top directory is the DOCUMENT_ROOT for your html
+files:
+
+$DOCUMENT_ROOT/lib/yui3/build/cssfonts/fonts-min.css
+$DOCUMENT_ROOT/lib/yui3/build/yui/yui-min.js
+$DOCUMENT_ROOT/lib/stacktrace.js
+$DOCUMENT_ROOT/lib/nodes-ed.js
+
+Which can be obtained by installing yui3 in $DOCUMENT_ROOT/lib and 
+installing stacktrace.js from:
+    https://github.com/emwendelin/javascript-stacktrace.git
+to the lib.
 
 Installation
 ============
-The YUI build system requires a fairly recent version of ant. See
+The YUI build system requires a fairly recent version of ant. See the README 
+displayed at: https://github.com/yui/builder/tree/master/componentbuild
+for details on that system. Assuming that you do that, then you can run the 
+following:
+
     $ git clone https://github.com/yui/builder.git
     $ git clone https://github.com/yui/yui2.git
     $ git clone https://github.com/yui/yui3.git
     $ git clone git://github.com/mtholder/nodes-ed.git
     $ cd nodes-ed/src
-    $ sh build.sh
+    $ make
+    
+Note that build.properties file (which is called by ant which is called by make)
+uses a relative path to find the YUI builder dir, so you'll have to use this 
+structure or modify your build.properties file (We'll have to take this out of
+git control if this need to modify becomes common).
 
- Copyright 2010 Mark T. Holder.
- All rights reserved.
+If you have the environmental variable DOCUMENT_ROOT set to the root directory 
+that for the html docs that you are serving, then you can use:
 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
+    $ make install
 
-     * Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-
-     * Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-
-     * The names of its contributors may not be used to endorse or promote
-       products derived from this software without specific prior written
-       permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL JEET SUKUMARAN OR MARK T. HOLDER
- BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
+to put nodes-ed-min.js into "$DOCUMENT_ROOT/lib"
 
 
+
+
+License
+============
+New BSD License see LICENSE.txt
+
+
+Authors
+============
+See the AUTHORS.txt file.  Contact Mark Holder <mtholder@gmail.com> if you'd
+like to get involved!

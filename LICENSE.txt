@@ -1,4 +1,4 @@
- nodes-ed JavaScript Library for dealing with phylogenetic data
+ nodes-ed an ECMAScript library for dealing with phylogenetic data
 
  Copyright 2010 Mark T. Holder.
  All rights reserved.

@@ -12,4 +12,6 @@ clean:
 	ant clean
 
 install: build_tmp/nodes-ed-min.js
-	cp build_tmp/nodes-ed-min.js $(DOCUMENT_ROOT)/lib/
+	if test -z $(DOCUMENT_ROOT) ; then echo "DOCUMENT_ROOT must be set!" && false ; fi
+	cp build_tmp/nodes-ed-min.js "$(DOCUMENT_ROOT)/lib/"
+	cp build_tmp/nodes-ed.js "$(DOCUMENT_ROOT)/lib/"
