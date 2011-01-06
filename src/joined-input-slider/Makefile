@@ -1,0 +1,14 @@
+COMPONENT_NAME = joined-input-slider
+COMPILED_COMPONENT = build_tmp/$(COMPONENT_NAME).js
+UNCOMPILED_COMPONENT = js/$(COMPONENT_NAME).js
+
+all : $(COMPILED_COMPONENT)
+
+
+$(COMPILED_COMPONENT) : $(UNCOMPILED_COMPONENT)
+	ant all
+
+.PHONY : clean
+
+clean :
+	ant clean

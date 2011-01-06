@@ -1,16 +1,25 @@
-build_tmp/nodes-ed-min.js : build_tmp/nodes-ed.js build_tmp/joined-input-slider.js
-	java -jar ../../builder/componentbuild/lib/yuicompressor/yuicompressor-2.4.jar -v --disable-optimizations --preserve-semi --line-break 6000 --nomunge -o build_tmp/nodes-ed-min.js build_tmp/nodes-ed.js
+DIRS = four-leaf-widget \
+	joined-input-slider
 
-build_tmp/nodes-ed.js : js/util.js build_tmp/joined-input-slider.js
+.PHONY: all clean $(DECORATED_WIDGETS)
+
+all : build_tmp/nodes-ed-min.js
+
+build_tmp/nodes-ed-min.js : build_tmp/nodes-ed.js
+	java -jar ../../builder/componentbuild/lib/yuicompressor/yuicompressor-2.4.jar --disable-optimizations --preserve-semi --line-break 6000 --nomunge -o build_tmp/nodes-ed-min.js build_tmp/nodes-ed.js
+
+build_tmp/nodes-ed.js : js/util.js $(DIRS)
 	cp js/util.js build_tmp/nodes-ed.js
-	cat build_tmp/joined-input-slider.js >> build_tmp/nodes-ed.js
+	-for d in $(DIRS) ; do (cd $$d ; $(MAKE) ; cd .. ; cat $$d/build_tmp/$$d.js >> build_tmp/nodes-ed.js ); done
 
-build_tmp/joined-input-slider.js : js/joined-input-slider.js
-	ant all
+$(DIRS) :
+	cd $(@F) ; $(MAKE) ; cd ..
 
-.PHONY : clean
 clean :
-	ant clean
+	rm -f build_tmp/nodes-ed.js
+	rm -f build_tmp/nodes-ed-min.js
+	-for d in $(DIRS) ; do (cd $$d; $(MAKE) clean ); done
+
 
 install: build_tmp/nodes-ed-min.js
 	if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
@@ -24,3 +33,6 @@ installexamples: $(EXAMPLE_FILES)
 	if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
 	cp  $(EXAMPLE_FILES) "$(DOCUMENT_ROOT)/"
 	echo ; echo "Successfully installed examples to $(DOCUMENT_ROOT)"; echo
+
+force_look :
+	true

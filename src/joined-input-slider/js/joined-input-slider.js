@@ -54,8 +54,6 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 
 		destructor : function() {
 			//Y.log('in destructor');
-			this._documentMouseUpHandle.detach();
-
 			this.inputNode = null;
 			this.slider = null;
 		},
