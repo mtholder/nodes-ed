@@ -1,7 +1,7 @@
 DIRS = four-leaf-widget \
 	joined-input-slider
 
-.PHONY: all clean $(DIRS) build_tmp/nodes-ed-hack.js
+.PHONY: all clean $(DIRS) build_tmp/nodes-ed-hack.js installexamples
 
 all : build_tmp/nodes-ed-min.js build_tmp/nodes-ed-debug.js build_tmp/nodes-ed-hack.js hack.js
 
@@ -54,10 +54,10 @@ install: build_tmp/nodes-ed-min.js build_tmp/nodes-ed-hack.js build_tmp/nodes-ed
 
 EXAMPLE_FILES = ../examples/tree-likelihood-viz/tree_likelihood_viz.html
 
-installexamples: $(EXAMPLE_FILES)
-	if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
+installexamples:
+	@if test -z $(DOCUMENT_ROOT) ; then echo ; echo "DOCUMENT_ROOT must be set!"; echo && false ; fi
 	cp  $(EXAMPLE_FILES) "$(DOCUMENT_ROOT)/"
-	echo ; echo "Successfully installed examples to $(DOCUMENT_ROOT)"; echo
+	@echo "Successfully installed examples to $(DOCUMENT_ROOT)"
 
 force_look :
 	true
