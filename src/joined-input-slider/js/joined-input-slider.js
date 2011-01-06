@@ -168,9 +168,10 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 		// updates self from the inputNode if needed, or sets the inputnode back to a legal value
 		_onInputChange : function(e) {
 			//Y.log('in _onInputChange');
-			var iv = this.inputNode.get("value");
-			if (!this._validateValue(iv)) {
+			var val = this.inputNode.get("value");
+			if (!this._validateValue(val)) {
 			    if (!this._uiInvalid) {
+
 				    this.inputNode.setStyle("color", "red");
 				    this._uiInvalid = true;
 				}
@@ -181,7 +182,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 				    this.inputNode.setStyle("color", "black");
 				    this._uiInvalid = false;
 				}
-				this.set('value', iv);
+				this.set('value', val);
 			}
 		},
 

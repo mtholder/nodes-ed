@@ -71,6 +71,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			//Y.log('in renderUI');
 			this._renderEdgeLengthSliders();
 			this._renderCanvas();
+			this._paint();
 		},
 
 		bindUI : function() {
@@ -181,10 +182,10 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 
 		  
 		_afterEdgeLengthChanged : function (index, e) {
-			this.paint();
+			this._paint();
 		},
 			  
-		paint : function () {
+		_paint : function () {
 			this._updateEdgeLengthsFromInput();
 			this._plot();
 		},
@@ -194,6 +195,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				v = new Array(5);
 			for (i = 0; i < this.inputArray.length; ++i) {
 				v[i] = +(this.inputArray[i].get('value'));
+				Y.log('_updateEdgeLengthsFromInput v[' + i + '] = ' + v[i]);
 			}
 			this.set('value', v);
 		},
@@ -238,7 +240,29 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				cnvsHeight,
 				xScaler,
 				yScaler,
-				v = this.get('value');
+				v;
+			v = this.get('value');
+
+			if (NdEjs.isNone(v)) {
+				this.leftIntX = 0;
+				this.leftIntY = 0;
+				this.rightIntX = 0;
+				this.rightIntY = 0;
+				this.leafUpLeftEdgeLen = 0;
+				this.leafUpLeftX = 0;
+				this.leafUpLeftY = 0;
+				this.leafDownLeftEdgeLen = 0;
+				this.leafDownLeftX = 0;
+				this.leafDownLeftY = 0;
+				this.leafUpRightEdgeLen = 0;
+				this.leafUpRightX = 0;
+				this.leafUpRightY = 0;
+				this.leafDownRightEdgeLen = 0;
+				this.leafDownRightX = 0;
+				this.leafDownRightY = 0;
+				return;
+			}
+
 			cnvsWidth = this.canvasDOMNd.width;
 			cnvsHeight = this.canvasDOMNd.height;
 			// denominator in Y is:
@@ -248,6 +272,8 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			// denominator in X has a 3.0 because we plot the internal horizontally,
 			//		so the graph could be three edges wide.
 			xScaler = cnvsWidth/(3.0*.5); 
+			
+
 			// left internal node always shows up at the same spot.
 			this.leftIntX = cnvsWidth/3;
 			this.leftIntY = cnvsHeight/2;
@@ -258,18 +284,17 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			//	 by rescaling our scalers...
 			yScaler /= this.Y_ANGLE_MULTIPLIER;
 			xScaler /= this.X_ANGLE_MULTIPLIER;
-			v = this.get('value');
-			//
-			this.leafUpLeftEdgeLen = v[this.leafUpLeftIndex]
+
+			this.leafUpLeftEdgeLen = v[this.leafUpLeftIndex];
 			this.leafUpLeftX = this.leftIntX - xScaler*this.leafUpLeftEdgeLen;
 			this.leafUpLeftY = this.leftIntY - yScaler*this.leafUpLeftEdgeLen;
-			this.leafDownLeftEdgeLen = v[this.leafDownLeftIndex]
+			this.leafDownLeftEdgeLen = v[this.leafDownLeftIndex];
 			this.leafDownLeftX = this.leftIntX - xScaler*this.leafDownLeftEdgeLen;
 			this.leafDownLeftY = this.leftIntY + yScaler*this.leafDownLeftEdgeLen;
-			this.leafUpRightEdgeLen = v[this.leafUpRightIndex]
+			this.leafUpRightEdgeLen = v[this.leafUpRightIndex];
 			this.leafUpRightX = this.rightIntX + xScaler*this.leafUpRightEdgeLen;
 			this.leafUpRightY = this.rightIntY - yScaler*this.leafUpRightEdgeLen;
-			this.leafDownRightEdgeLen = v[this.leafDownRightIndex]
+			this.leafDownRightEdgeLen = v[this.leafDownRightIndex];
 			this.leafDownRightX = this.rightIntX + xScaler*this.leafDownRightEdgeLen;
 			this.leafDownRightY = this.rightIntY + yScaler*this.leafDownRightEdgeLen;
 		},
@@ -283,21 +308,30 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
 			var i, inp;
+			if (NdEjs.isNone(val)) {
+				return;
+			}
 			for (i = 0; (i < val.length && i < 5) ; ++i ) {
 				this.inputArray[i].set('value', val[i]);
 			}
+			this._paint();
 		},
 
 		// returns true if the val is an array of at least 5 numbers in the range [min, max]
 		_validateValue: function(val) {
 			var min = this.get("min"), 
 				max = this.get("max"),
-				i;
+				i,v;
+			Y.log("_validateValue val=" + val);
 			if (!Y.Lang.isArray(val) || val.length < 5) {
+                Y.log("_validateValue returning false");
 				return false;
 			}
 			for (i = 0; i < 5; i++) {
-				if (!(Y.Lang.isNumber(+val[i])&& (+val >= +min) && (+val <= +max))) {
+			    v = val[i];
+	    		Y.log("_validateValue val[" + i + "]" + v);
+				if (!(Y.Lang.isNumber(+v)&& (+v >= +min) && (+v <= +max))) {
+    	    		Y.log("_validateValue returning false");
 					return false;
 				}
 			}

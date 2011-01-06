@@ -1,7 +1,7 @@
 DIRS = four-leaf-widget \
 	joined-input-slider
 
-.PHONY: all clean $(DECORATED_WIDGETS)
+.PHONY: all clean $(DIRS)
 
 all : build_tmp/nodes-ed-min.js
 
@@ -9,8 +9,9 @@ build_tmp/nodes-ed-min.js : build_tmp/nodes-ed.js
 	java -jar ../../builder/componentbuild/lib/yuicompressor/yuicompressor-2.4.jar --disable-optimizations --preserve-semi --line-break 6000 --nomunge -o build_tmp/nodes-ed-min.js build_tmp/nodes-ed.js
 
 build_tmp/nodes-ed.js : js/util.js $(DIRS)
-	cp js/util.js build_tmp/nodes-ed.js
-	-for d in $(DIRS) ; do (cd $$d ; $(MAKE) ; cd .. ; cat $$d/build_tmp/$$d.js >> build_tmp/nodes-ed.js ); done
+	cp js/util.js build_tmp/.hidden.js
+	-for d in $(DIRS) ; do (cd $$d ; $(MAKE) ; cd .. ; cat $$d/build_tmp/$$d.js >> build_tmp/.hidden.js ); done
+	diff build_tmp/nodes-ed.js build_tmp/.hidden.js >/dev/null || cp build_tmp/.hidden.js build_tmp/nodes-ed.js 
 
 $(DIRS) :
 	cd $(@F) ; $(MAKE) ; cd ..

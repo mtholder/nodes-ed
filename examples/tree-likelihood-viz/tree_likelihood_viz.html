@@ -115,12 +115,12 @@ if (DEBUGGING) {
 		flw = new Y.FourLeafWidget({treeName : treeName,
 									treeIndex : i,
 									inputNode : srcNode,
-									canvasNd : canvasNd);
+									canvasNd : canvasNd});
 		treeWidgets[i] = flw;
 	}
 	
 	for (i = 0; i < treeWidgets.length; ++i) {
-		treeWidgets[i].paint();
+		treeWidgets[i].render();
 	}
 
 	return;
