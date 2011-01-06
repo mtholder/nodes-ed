@@ -18,7 +18,7 @@ body {
 <link rel="stylesheet" href="./lib/yui2/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
 <script type="text/javascript" src="./lib/yui3/build/yui/yui-min.js"></script>
 <script type="text/javascript" src="./lib/stacktrace.js"></script>
-<script type="text/javascript" src="./lib/nodes-ed.js"></script>
+<script type="text/javascript" src="./lib/nodes-ed-debug.js"></script>
 <style type="text/css">
 	input {
 		width: 8em;
@@ -55,28 +55,16 @@ body {
 				  <canvas width="300" height="200" id="patternProbCanvas"></canvas>
 			</div>
 			<div class="yui-u">
-				<div id="treeABCanvasDiv">
-				  <canvas width="300" height="200" id="treeABCanvas"></canvas>
-				</div>
-				<div id="treeABInputDiv">
-				</div>
+				<div id="treeABDiv"></div>
 			</div>
 	</div>
 
 	<div class="yui-g">
 		<div class="yui-u first">
-			<div id="treeACCanvasDiv">
-				  <canvas width="300" height="200" id="treeACCanvas"></canvas>
-			</div>
-			<div id="treeACInputDiv">
-			</div>
+			<div id="treeACDiv"></div>
 		</div>
 		<div class="yui-u">
-			<div id="treeADCanvasDiv">
-				  <canvas width="300" height="200" id="treeADCanvas"></canvas>
-			</div>
-			<div id="treeADInputDiv">
-			</div>
+			<div id="treeADDiv"></div>
 		</div>
 	</div>
 </div>
@@ -103,26 +91,18 @@ if (DEBUGGING) {
 
 
 
-	var treeNameArray = ['AB', 'AC', 'AD'], i, treeName, srcNode, cid, canvasNd, canvasDOMNd, treeWidgets;
+	var treeNameArray = ['AB', 'AC', 'AD'], i, treeName , treeWidgets;
 	treeWidgets = [];
 	for (i = 0; i < treeNameArray.length; ++i) {
 		treeName = treeNameArray[i];
-		cid = 'tree' + treeName + 'Canvas';
-		Y.log('cid = ' + cid);
-		canvasNd = Y.one('#' + cid)
-		srcNode = Y.one("#tree" + treeName + 'InputDiv');
-		
+		parNd = Y.one('#' + 'tree' + treeName + 'Div')
+		Y.log("parNd is " + parNd);
 		flw = new Y.FourLeafWidget({treeName : treeName,
 									treeIndex : i,
-									inputNode : srcNode,
-									canvasNd : canvasNd});
+									parNd : parNd});
+		flw.render(parNd);
 		treeWidgets[i] = flw;
 	}
-	
-	for (i = 0; i < treeWidgets.length; ++i) {
-		treeWidgets[i].render();
-	}
-
 	return;
 }
 );

@@ -7,8 +7,9 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 		// identifies the classname applied to the value field
 		CANVAS_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetCanvas'),
 		CANVAS_TEMPLATE : '<canvas width="300" height="200" class="' + Y.ClassNameManager.getClassName('fourLeafWidgetCanvas') + '">',
-		
-		
+		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('joinedInputSlider') + '-group"',
+		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
+        
 		initializer: function(config) {
 			var i, inp;
 			this.treeName = config.treeName;
@@ -35,7 +36,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				this.color = "#00DD00";
 			}
 			this.internalIndex = 4; // this is the same for all three trees
-	
+
 			this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
 			this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
 			
@@ -44,14 +45,6 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			this.canvasDOMNd = null;
 			this.canvasNd = null;
 			this.canvasContex = null;
-
-			this.inputNode = config.inputNode; // \TEMP this should not be in the config....
-			this.canvasNd = config.canvasNd;// \TEMP this should not be in the config....
-
-	
-	
-	
-
 		},
 
 		destructor : function() {
@@ -76,6 +69,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 
 		bindUI : function() {
 			//Y.log('in bindUI');
+			var i, inp;
 			for (i = 0; i < this.inputArray.length; ++i) {
 				inp = this.inputArray[i];
 				inp.after("valueChange", Y.bind(this._afterEdgeLengthChanged, this, i));
@@ -89,16 +83,18 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 
 		_renderEdgeLengthSliders : function() {
 			//Y.log('in _renderEdgeLengthSliders');
-			//inputNode should be created with TEMPLATE here.
 			var contentBox = this.get("contentBox"),
 				inpNode = this.inputNode,
-				v, i;
-				//inpNode = contentBox.one("." + this.INPUT_CLASS),
+				v, i, inpgroupid;
 
+			Y.log('creating inpNode');
 			if (!inpNode) {
-				inpNode = Y.Node.create(this.INPUT_NODE_TEMPLATE);
-				contentBox.appendChild(inpNode);
+				NdEjs.logObject(contentBox, Y.log);
+				inpgroupid =  this.treeName + '-input';
+				contentBox.append(this.INPUT_NODE_TEMPLATE + ' id="' + inpgroupid + '">');
+				inpNode = contentBox.one("#" + inpgroupid);
 			}
+			
 			this.inputNode = inpNode;
 			this.inputArray = this._createEdgeLengthSliders(this.inputNode, this.treeName);
 			v = this.get('value');
@@ -106,12 +102,12 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				this._uiSetValue(v);
 			}
 			else {
-				v = new Array();
+				v = [];
 			}
 		},
 
 		_createEdgeLengthSliders : function(srcNode, treeName) {
-			var jInpSlider, i, edgj1Nd, edgeNameArray, edgeValueWidgets, edgeName, eid;
+			var jInpSlider, i, edgeNd, edgeNameArray, edgeValueWidgets, edgeName, eid;
 			edgeNameArray = ['A', 'B', 'C', 'D', 'Internal'];
 				edgeValueWidgets = [];
 			try {
@@ -131,7 +127,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 						max : 0.5,
 						min : 0.0,
 						minorStep : 0.0001,
-						majorStep : 0.01,
+						majorStep : 0.01
 					});
 					edgeValueWidgets[i] = jInpSlider;
 				}
@@ -155,16 +151,15 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 
 		_renderCanvas : function() {
 			//Y.log('in _renderCanvas');
-			//canvasNd should be created with TEMPLATE here.
 			
 			var contentBox = this.get("contentBox"),
 				strings,
 				inc,
-				canvYuiNode = this.canvasNd;
-				
+				canvYuiNode = null;
+			canvYuiNode = contentBox.one("." + this.CANVAS_CLASS)
 			if (!canvYuiNode) {
 				canvYuiNode = Y.Node.create(this.CANVAS_TEMPLATE);
-				contentBox.appendChild(canvYuiNode);
+				contentBox.prepend(canvYuiNode);
 			}
 			this.canvasNd = canvYuiNode;
 			
@@ -195,7 +190,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				v = new Array(5);
 			for (i = 0; i < this.inputArray.length; ++i) {
 				v[i] = +(this.inputArray[i].get('value'));
-				Y.log('_updateEdgeLengthsFromInput v[' + i + '] = ' + v[i]);
+				//Y.log('_updateEdgeLengthsFromInput v[' + i + '] = ' + v[i]);
 			}
 			this.set('value', v);
 		},
@@ -268,10 +263,10 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			// denominator in Y is:
 			//		a factor of 2.0 because we want room for 2 branches and labels (and the branches will be at 45-degrees)
 			//		times  0.5 because the max branch length is 0.5
-			yScaler = cnvsHeight/(2.0*.5); 
+			yScaler = cnvsHeight/(2.0*0.5); 
 			// denominator in X has a 3.0 because we plot the internal horizontally,
 			//		so the graph could be three edges wide.
-			xScaler = cnvsWidth/(3.0*.5); 
+			xScaler = cnvsWidth/(3.0*0.5); 
 			
 
 			// left internal node always shows up at the same spot.
@@ -322,16 +317,16 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			var min = this.get("min"), 
 				max = this.get("max"),
 				i,v;
-			Y.log("_validateValue val=" + val);
+			//Y.log("_validateValue val=" + val);
 			if (!Y.Lang.isArray(val) || val.length < 5) {
-                Y.log("_validateValue returning false");
+                //Y.log("_validateValue returning false");
 				return false;
 			}
 			for (i = 0; i < 5; i++) {
 			    v = val[i];
-	    		Y.log("_validateValue val[" + i + "]" + v);
+	    		//Y.log("_validateValue val[" + i + "]" + v);
 				if (!(Y.Lang.isNumber(+v)&& (+v >= +min) && (+v <= +max))) {
-    	    		Y.log("_validateValue returning false");
+    	    		//Y.log("_validateValue returning false");
 					return false;
 				}
 			}
