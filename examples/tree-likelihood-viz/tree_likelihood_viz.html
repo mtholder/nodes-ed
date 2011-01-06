@@ -97,49 +97,49 @@ if (DEBUGGING) {
 }
 
 _createEdgeLengthSliders = function(srcNode, treeName) {
-    var jInpSlider, i, edgj1Nd, edgeNameArray, edgeValueWidgets, edgeName, eid;
-    edgeNameArray = ['A', 'B', 'C', 'D', 'Internal'];
-        edgeValueWidgets = [];
-    try {
-        for (i = 0; i < edgeNameArray.length; ++i) {
-            edgeName = edgeNameArray[i];
-            eid = treeName + 'edge' + edgeName;
-            srcNode.append('<input type="text" id="' + eid + '" class="yui3-joinedInputSlider-loading" value="0.05" />');
-        }
-        for (i = 0; i < edgeNameArray.length; ++i) {
-            edgeName = edgeNameArray[i];
-            eid = treeName + 'edge' + edgeName;
-            edgeNd = Y.one('#' + eid);
-            NdEjs.logObject(edgeNd, Y.log);
-            jInpSlider = new Y.JoinedInputSlider({
-                srcNode : edgeNd,
-                value : edgeNd.get("value"),
-                max : 0.5,
-                min : 0.0,
-                minorStep : 0.0001,
-                majorStep : 0.01,
-            });
-            edgeValueWidgets[i] = jInpSlider;
-        }
-        for (i = 0; i < edgeValueWidgets.length; ++i) {
-            edgeValueWidgets[i].render();
-            edgeValueWidgets[i].focus();
-        }
-        return edgeValueWidgets;
-    }
-    catch (e) {
-        NdEjs.logException(e, Y.log); 
-        try {
-            NdEjs.logException(e, Y.log);
-        }
-        catch (ee) {
-            Y.log("EE = " + ee);
-        }
-        throw e;
-    }
+	var jInpSlider, i, edgj1Nd, edgeNameArray, edgeValueWidgets, edgeName, eid;
+	edgeNameArray = ['A', 'B', 'C', 'D', 'Internal'];
+		edgeValueWidgets = [];
+	try {
+		for (i = 0; i < edgeNameArray.length; ++i) {
+			edgeName = edgeNameArray[i];
+			eid = treeName + 'edge' + edgeName;
+			srcNode.append('<input type="text" id="' + eid + '" class="yui3-joinedInputSlider-loading" value="0.05" />');
+		}
+		for (i = 0; i < edgeNameArray.length; ++i) {
+			edgeName = edgeNameArray[i];
+			eid = treeName + 'edge' + edgeName;
+			edgeNd = Y.one('#' + eid);
+			NdEjs.logObject(edgeNd, Y.log);
+			jInpSlider = new Y.JoinedInputSlider({
+				srcNode : edgeNd,
+				value : edgeNd.get("value"),
+				max : 0.5,
+				min : 0.0,
+				minorStep : 0.0001,
+				majorStep : 0.01,
+			});
+			edgeValueWidgets[i] = jInpSlider;
+		}
+		for (i = 0; i < edgeValueWidgets.length; ++i) {
+			edgeValueWidgets[i].render();
+			edgeValueWidgets[i].focus();
+		}
+		return edgeValueWidgets;
+	}
+	catch (e) {
+		NdEjs.logException(e, Y.log); 
+		try {
+			NdEjs.logException(e, Y.log);
+		}
+		catch (ee) {
+			Y.log("EE = " + ee);
+		}
+		throw e;
+	}
 }
 
-var FourLeafWidget = function(inputNode, canvasNd, treeName) {
+var FourLeafWidget = function(inputNode, canvasNd, treeName, treeIndex) {
 	var i, inp;
 	this.inputSrcNd = inputNode;
 	this.treeName = treeName;
@@ -148,88 +148,115 @@ var FourLeafWidget = function(inputNode, canvasNd, treeName) {
 	this.canvasDOMNd = Y.Node.getDOMNode(canvasNd);
 	this.canvasContext = this.canvasDOMNd.getContext("2d");
 	this._edgeLengthsToPlot = [null, null, null, null, null];
-    this.leafNames = ['A', 'B', 'C', 'D'];
-    //\todo these indices will control which tree we show (mapping of point on graph 
-    //      to edge lengths and leafNames arrays
-    this.leafUpLeftIndex = 0;
-    this.leafUpRightIndex = 2;
-    this.leafDownLeftIndex = 1;
-    this.leafDownRightIndex = 3;
-    this.internalIndex = 4; // this is the same for all three trees
-    this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
-    this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
-    
-	this._plot = function () {
-	    var cnvsWidth, cnvsHeight, 
-	        leftIntX, leftIntY, 
-	        rightIntX, rightIntY, 
-	        leafUpLeftX, leafUpLeftY, leafUpLeftEdgeLen,
-	        leafUpRightX, leafUpRightY, leafUpLeftEdgeLen,
-	        leafDownLeftX, leafDownLeftY, leafUpLeftEdgeLen,
-	        leafDownRightX, leafDownRightY, leafUpLeftEdgeLen,
-	        xScaler, yScaler;
-	    cnvsWidth = this.canvasDOMNd.width;
-	    cnvsHeight = this.canvasDOMNd.height;
-	    // denominator in Y is:
-	    //      a factor of 2.0 because we want room for 2 branches and labels (and the branches will be at 45-degrees)
-	    //      times  0.5 because the max branch length is 0.5
-	    yScaler = cnvsHeight/(2.0*.5); 
-	    // denominator in X has a 3.0 because we plot the internal horizontally,
-	    //      so the graph could be three edges wide.
-	    xScaler = cnvsWidth/(3.0*.5); 
-        // left internal node always shows up at the same spot.
-	    leftIntX = cnvsWidth/3;
-	    leftIntY = cnvsHeight/2;
-        // right internal node is directly to the right of the leftInt
-	    rightIntX = leftIntX + xScaler*(this._edgeLengthsToPlot[this.internalIndex]);
-	    rightIntY = leftIntY;
-	    // all other nodes are off at 45 degree angles, so we can deal with this
-	    //   by rescaling our scalers...
-	    yScaler /= this.Y_ANGLE_MULTIPLIER;
-	    xScaler /= this.X_ANGLE_MULTIPLIER;
-	    
-	    leafUpLeftEdgeLen = this._edgeLengthsToPlot[this.leafUpLeftIndex]
-	    leafUpLeftX = leftIntX - xScaler*leafUpLeftEdgeLen;
-	    leafUpLeftY = leftIntY - yScaler*leafUpLeftEdgeLen;
-    
-	    leafDownLeftEdgeLen = this._edgeLengthsToPlot[this.leafDownLeftIndex]
-	    leafDownLeftX = leftIntX - xScaler*leafDownLeftEdgeLen;
-	    leafDownLeftY = leftIntY + yScaler*leafDownLeftEdgeLen;
-
-	    leafUpRightEdgeLen = this._edgeLengthsToPlot[this.leafUpRightIndex]
-	    leafUpRightX = rightIntX + xScaler*leafUpRightEdgeLen;
-	    leafUpRightY = rightIntY - yScaler*leafUpRightEdgeLen;
-    
-	    leafDownRightEdgeLen = this._edgeLengthsToPlot[this.leafDownRightIndex]
-	    leafDownRightX = rightIntX + xScaler*leafDownRightEdgeLen;
-	    leafDownRightY = rightIntY + yScaler*leafDownRightEdgeLen;
-
-	    
-	    this.canvasContext.clearRect(0, 0, cnvsWidth, cnvsHeight);
-	    this.canvasContext.beginPath();
-	    this.canvasContext.moveTo(leafUpLeftX, leafUpLeftY);
-    	this.canvasContext.lineTo(leftIntX, leftIntY);
-    	this.canvasContext.lineTo(leafDownLeftX, leafDownLeftY);
-	    this.canvasContext.moveTo(leftIntX, leftIntY);
-    	this.canvasContext.lineTo(rightIntX, rightIntY);
-	    this.canvasContext.moveTo(leafUpRightX, leafUpRightY);
-    	this.canvasContext.lineTo(rightIntX, rightIntY);
-    	this.canvasContext.lineTo(leafDownRightX, leafDownRightY);
-	    this.canvasContext.stroke();
+	this.leafNames = ['A', 'B', 'C', 'D'];
+	this.treeIndex = treeIndex;
+	//\todo these indices will control which tree we show (mapping of point on graph 
+	//		to edge lengths and leafNames arrays
+	this.leafUpLeftIndex = 0;
+	if (this.treeIndex == 1) { // AC|BD
+		this.leafUpRightIndex = 1;
+		this.leafDownLeftIndex = 2;
+		this.leafDownRightIndex = 3;
 	}
+	else if (this.treeIndex == 2) {
+		this.leafUpRightIndex = 1;
+		this.leafDownLeftIndex = 3;
+		this.leafDownRightIndex = 2;
+	}
+	else {
+		this.leafUpRightIndex = 2;
+		this.leafDownLeftIndex = 1;
+		this.leafDownRightIndex = 3;
+	}
+	this.internalIndex = 4; // this is the same for all three trees
+	this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
+	this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
+	
+	this._plot = function () {			
+		this._calcCoordinates();
+		this._repaintFromCoordinates();
+	}
+	this._repaintFromCoordinates = function () {
+		var dim, nextLabel;
+		this.canvasContext.clearRect(0, 0, this.canvasDOMNd.width, this.canvasDOMNd.height);
+		this.canvasContext.beginPath();
+		this.canvasContext.moveTo(this.leafUpLeftX, this.leafUpLeftY);
+		this.canvasContext.lineTo(this.leftIntX, this.leftIntY);
+		this.canvasContext.lineTo(this.leafDownLeftX, this.leafDownLeftY);
+		this.canvasContext.moveTo(this.leftIntX, this.leftIntY);
+		this.canvasContext.lineTo(this.rightIntX, this.rightIntY);
+		this.canvasContext.moveTo(this.leafUpRightX, this.leafUpRightY);
+		this.canvasContext.lineTo(this.rightIntX, this.rightIntY);
+		this.canvasContext.lineTo(this.leafDownRightX, this.leafDownRightY);
+		this.canvasContext.stroke();
+		//
+		this.canvasContext.font = "bold 12pt fixed-width";
+		
+		nextLabel = this.leafNames[this.leafUpLeftIndex];
+		dim = this.canvasContext.measureText(nextLabel);
+		this.canvasContext.fillText(nextLabel, this.leafUpLeftX - dim.width, this.leafUpLeftY);
+		
+		nextLabel = this.leafNames[this.leafUpRightIndex];
+		dim = this.canvasContext.measureText(nextLabel);
+		this.canvasContext.fillText(nextLabel, this.leafUpRightX, this.leafUpRightY);
+		
+		nextLabel = this.leafNames[this.leafDownLeftIndex];
+		dim = this.canvasContext.measureText(nextLabel);
+		this.canvasContext.fillText(nextLabel, this.leafDownLeftX - dim.width, this.leafDownLeftY + 12);
+		
+		nextLabel = this.leafNames[this.leafDownRightIndex];
+		this.canvasContext.fillText(nextLabel, this.leafDownRightX, this.leafDownRightY + 12);
+	}
+	
+	this._calcCoordinates = function () {
+		var cnvsWidth, cnvsHeight, xScaler, yScaler;
+		cnvsWidth = this.canvasDOMNd.width;
+		cnvsHeight = this.canvasDOMNd.height;
+		// denominator in Y is:
+		//		a factor of 2.0 because we want room for 2 branches and labels (and the branches will be at 45-degrees)
+		//		times  0.5 because the max branch length is 0.5
+		yScaler = cnvsHeight/(2.0*.5); 
+		// denominator in X has a 3.0 because we plot the internal horizontally,
+		//		so the graph could be three edges wide.
+		xScaler = cnvsWidth/(3.0*.5); 
+		// left internal node always shows up at the same spot.
+		this.leftIntX = cnvsWidth/3;
+		this.leftIntY = cnvsHeight/2;
+		// right internal node is directly to the right of the leftInt
+		this.rightIntX = this.leftIntX + xScaler*(this._edgeLengthsToPlot[this.internalIndex]);
+		this.rightIntY = this.leftIntY;
+		// all other nodes are off at 45 degree angles, so we can deal with this
+		//	 by rescaling our scalers...
+		yScaler /= this.Y_ANGLE_MULTIPLIER;
+		xScaler /= this.X_ANGLE_MULTIPLIER;
+		//
+		this.leafUpLeftEdgeLen = this._edgeLengthsToPlot[this.leafUpLeftIndex]
+		this.leafUpLeftX = this.leftIntX - xScaler*this.leafUpLeftEdgeLen;
+		this.leafUpLeftY = this.leftIntY - yScaler*this.leafUpLeftEdgeLen;
+		this.leafDownLeftEdgeLen = this._edgeLengthsToPlot[this.leafDownLeftIndex]
+		this.leafDownLeftX = this.leftIntX - xScaler*this.leafDownLeftEdgeLen;
+		this.leafDownLeftY = this.leftIntY + yScaler*this.leafDownLeftEdgeLen;
+		this.leafUpRightEdgeLen = this._edgeLengthsToPlot[this.leafUpRightIndex]
+		this.leafUpRightX = this.rightIntX + xScaler*this.leafUpRightEdgeLen;
+		this.leafUpRightY = this.rightIntY - yScaler*this.leafUpRightEdgeLen;
+		this.leafDownRightEdgeLen = this._edgeLengthsToPlot[this.leafDownRightIndex]
+		this.leafDownRightX = this.rightIntX + xScaler*this.leafDownRightEdgeLen;
+		this.leafDownRightY = this.rightIntY + yScaler*this.leafDownRightEdgeLen;
+	}
+
 	this._updateEdgeLengthsFromInput = function() {
-	    var i;
-	    for (i = 0; i < this.inputArray.length; ++i) {
-	        this._edgeLengthsToPlot[i] = +(this.inputArray[i].get('value'));
-	    }
+		var i;
+		for (i = 0; i < this.inputArray.length; ++i) {
+			this._edgeLengthsToPlot[i] = +(this.inputArray[i].get('value'));
+		}
 	}
 	this.paint = function () {
-	    this._updateEdgeLengthsFromInput();
-	    this._plot();
+		this._updateEdgeLengthsFromInput();
+		this._plot();
 	}
 
 	this._afterEdgeLengthChanged = function (index, e) {
-	    this.paint();
+		this.paint();
 	}
 
 	for (i = 0; i < this.inputArray.length; ++i) {
@@ -246,19 +273,19 @@ var FourLeafWidget = function(inputNode, canvasNd, treeName) {
 	var treeNameArray = ['AB', 'AC', 'AD'], i, treeName, srcNode, cid, canvasNd, canvasDOMNd, treeWidgets;
 	treeWidgets = [];
 	for (i = 0; i < treeNameArray.length; ++i) {
-    	treeName = treeNameArray[i];
-        cid = 'tree' + treeName + 'Canvas';
-        Y.log('cid = ' + cid);
-        canvasNd = Y.one('#' + cid)
-        srcNode = Y.one("#tree" + treeName + 'InputDiv');
+		treeName = treeNameArray[i];
+		cid = 'tree' + treeName + 'Canvas';
+		Y.log('cid = ' + cid);
+		canvasNd = Y.one('#' + cid)
+		srcNode = Y.one("#tree" + treeName + 'InputDiv');
 		
-		flw = new FourLeafWidget(srcNode, canvasNd, treeName);
+		flw = new FourLeafWidget(srcNode, canvasNd, treeName, i);
 		treeWidgets[i] = flw;
-    }
-    
-    for (i = 0; i < treeWidgets.length; ++i) {
-    	treeWidgets[i].paint();
-    }
+	}
+	
+	for (i = 0; i < treeWidgets.length; ++i) {
+		treeWidgets[i].paint();
+	}
 
 	return;
 }
