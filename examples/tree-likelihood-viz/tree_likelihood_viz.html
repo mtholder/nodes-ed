@@ -185,8 +185,8 @@ var FourLeafWidget = function(inputNode, canvasNd, treeName) {
 	    rightIntY = leftIntY;
 	    // all other nodes are off at 45 degree angles, so we can deal with this
 	    //   by rescaling our scalers...
-	    yScaler *= this.Y_ANGLE_MULTIPLIER;
-	    xScaler *= this.X_ANGLE_MULTIPLIER;
+	    yScaler /= this.Y_ANGLE_MULTIPLIER;
+	    xScaler /= this.X_ANGLE_MULTIPLIER;
 	    
 	    leafUpLeftEdgeLen = this._edgeLengthsToPlot[this.leafUpLeftIndex]
 	    leafUpLeftX = leftIntX - xScaler*leafUpLeftEdgeLen;
