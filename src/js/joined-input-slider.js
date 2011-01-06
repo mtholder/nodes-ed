@@ -278,7 +278,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
                 },
         minorStep : { value : 1},
         majorStep : { value : 10},
-        sliderLength : { value : 150},
+        sliderLength : { value : 100},
         strings:	{ value :	{
                             tooltip: "Press the arrow up/down keys for minor increments, page up/down for major increments.",
                             slider: "Slider"

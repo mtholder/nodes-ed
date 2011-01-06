@@ -20,8 +20,8 @@ body {
 <script type="text/javascript" src="./lib/stacktrace.js"></script>
 <script type="text/javascript" src="./lib/nodes-ed.js"></script>
 <style type="text/css">
-	#demo input {
-		width: 2em;
+	input {
+		width: 8em;
 	}
 	.horiz_slider {
 		margin-left: 2ex;
@@ -153,21 +153,28 @@ var FourLeafWidget = function(inputNode, canvasNd, treeName, treeIndex) {
 	//\todo these indices will control which tree we show (mapping of point on graph 
 	//		to edge lengths and leafNames arrays
 	this.leafUpLeftIndex = 0;
+
+	this.canvasContext.font = "bold 12pt fixed-width";
 	if (this.treeIndex == 1) { // AC|BD
 		this.leafUpRightIndex = 1;
 		this.leafDownLeftIndex = 2;
 		this.leafDownRightIndex = 3;
+		this.color = "#FF5555";
 	}
 	else if (this.treeIndex == 2) {
 		this.leafUpRightIndex = 1;
 		this.leafDownLeftIndex = 3;
 		this.leafDownRightIndex = 2;
+		this.color = "#0000FF";
 	}
 	else {
 		this.leafUpRightIndex = 2;
 		this.leafDownLeftIndex = 1;
 		this.leafDownRightIndex = 3;
+		this.color = "#00DD00";
 	}
+	this.canvasContext.strokeStyle = this.color;
+	this.canvasContext.fillStyle = this.color;
 	this.internalIndex = 4; // this is the same for all three trees
 	this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
 	this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
@@ -189,8 +196,6 @@ var FourLeafWidget = function(inputNode, canvasNd, treeName, treeIndex) {
 		this.canvasContext.lineTo(this.rightIntX, this.rightIntY);
 		this.canvasContext.lineTo(this.leafDownRightX, this.leafDownRightY);
 		this.canvasContext.stroke();
-		//
-		this.canvasContext.font = "bold 12pt fixed-width";
 		
 		nextLabel = this.leafNames[this.leafUpLeftIndex];
 		dim = this.canvasContext.measureText(nextLabel);
