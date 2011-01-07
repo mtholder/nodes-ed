@@ -2,4 +2,8 @@ build_tmp
 build
 hack.js
 debug.js
+src/four-leaf-tree-calculator/js/four-leaf-tree-calculator.js
+src/four-leaf-widget/js/four-leaf-widget.js
+src/grouped-histogram/js/grouped-histogram.js
+src/joined-input-slider/js/joined-input-slider.js
 

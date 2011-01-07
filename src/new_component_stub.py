@@ -58,8 +58,8 @@ if not os.path.exists(fn):
     o.close()
 
 
-fn = os.path.join(dashed_name, 'js', dashed_name + '.js')
+fn = os.path.join(dashed_name, 'js', 'info.txt')
 if not os.path.exists(fn):
     o = open(fn, 'w')
-    o.write('\n')
+    o.write('Do not edit the file %s.js in this directory. it is created from ../%s-debug.js\n' % (dashed_name, dashed_name))
     o.close()
