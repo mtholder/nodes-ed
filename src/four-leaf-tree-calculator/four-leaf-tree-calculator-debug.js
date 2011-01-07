@@ -24,7 +24,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 			this.leafUpRightIndex = 1;
 			this.leafDownLeftIndex = 3;
 			this.leafDownRightIndex = 2;
-			this._calcIndexToStd = [0, 4, 2, 6, 1, 5, 3, 7];
+			this._calcIndexToStd = [0, 4, 1, 5, 2, 6, 3, 7];
 		}
 		else {  // AB | CD, which is the order that we do the pattern calculations in
 			this.leafUpRightIndex = 2;
