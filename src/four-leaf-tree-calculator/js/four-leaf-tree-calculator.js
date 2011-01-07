@@ -109,7 +109,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Widget, {
 		}
 		Y.log('probs =  [' + this._standardForm[0] + ', '+ this._standardForm[1] + ', '+ this._standardForm[2] + ', '+ this._standardForm[3] + ', ...');
 		Y.log('   ' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
-		//this.set('value', this._standardForm);
+		this.set('value', this._standardForm);
 	},
 
 	_validateValue: function(val) {
