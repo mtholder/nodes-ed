@@ -1,5 +1,6 @@
 DIRS = four-leaf-widget \
-	joined-input-slider
+	four-leaf-tree-calculator \
+	joined-input-slider 
 
 .PHONY: all clean $(DIRS) build_tmp/nodes-ed-hack.js installexamples
 

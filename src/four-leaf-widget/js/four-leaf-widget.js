@@ -342,7 +342,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				  validator : function(val) {
 						return this._validateValue(val);
 					}
-				},
+				}
 		}
 	
 });

@@ -1,4 +1,4 @@
-COMPONENT_NAME = four-leaf-widget
+COMPONENT_NAME = four-leaf-tree-calculator
 COMPILED_COMPONENT = build_tmp/$(COMPONENT_NAME).js
 UNCOMPILED_COMPONENT = js/$(COMPONENT_NAME).js
 
