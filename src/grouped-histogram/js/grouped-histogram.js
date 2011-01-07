@@ -6,7 +6,7 @@ function GroupedHistogram(config) {
 Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 		// identifies the classname applied to the value field
 		CANVAS_CLASS : Y.ClassNameManager.getClassName('GroupedHistogramCanvas'),
-		CANVAS_TEMPLATE : '<canvas width="300" height="300" class="' + Y.ClassNameManager.getClassName('groupedHistogramCanvas') + '">',
+		CANVAS_TEMPLATE : '<canvas width="300" height="320" class="' + Y.ClassNameManager.getClassName('groupedHistogramCanvas') + '">',
         
 		initializer: function(config) {
 		    var i = 0,
@@ -38,6 +38,9 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
                 if (g) {
                     this.groupsValueArray[i] = g.slice(0);
                     this._updateExtremaOnGroup(i);
+                }
+                else {
+                    this.groupsValueArray[i] = [];
                 }
 		    }
 		    
@@ -156,10 +159,11 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
             }
             var numSlots = (this.numCategories + 1)*this.groupsValueArray.length;
             this.barWidth = this.canvasWidth/numSlots;
+            Y.log('barWidth = ' + this.barWidth + ' this.canvasWidth = ' + this.canvasWidth + ' numSlots = ' + numSlots);
         },
 		  
 		_afterGroupValueChanged : function (index, e) {
-		    Y.log('_afterGroupValueChanged for index ' + index);
+		    Y.log('_afterGroupValueChanged for index ' + index + 'e.nv.length = ' + e.newVal.length);
 		    var modToRescalingFactor, beforeExtramaUpdate;
 		    try {
                 this.groupsValueArray[index] = e.newVal.slice(0);
@@ -178,25 +182,27 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 				yScaler,
 				v, j,currWidthOffset, widthOffset, heightOffset, groupWidthOffset;
 		    Y.log('GroupedHistogram._paint()');
+		    this.canvasContext.clearRect(0, 0, this.canvasDOMNd.width, this.canvasDOMNd.height);
 			drawableHeight = 0.9*this.canvasDOMNd.width;
 			drawableWidth = 0.9*this.canvasDOMNd.height;
-			if (drawableHeight != this.canvasWidth) {
+			if (true || drawableHeight != this.canvasWidth) {
 			    this.canvasWidth = drawableHeight;
 			    this._calcBarWidths();
 			}
-			if (drawableWidth != this.canvasHeight) {
+			if (true || drawableWidth != this.canvasHeight) {
 			    this.canvasHeight = drawableWidth;
 			    this.barLengthScaler = this.canvasHeight/this.maxValPlottable;
 			}
 			widthOffset = this.barWidth/2.0;
 			heightOffset = 0.05*this.canvasDOMNd.width;
-			groupWidthOffset = (this.numCategories + 1)*widthOffset;
+			groupWidthOffset = (this.groupsValueArray.length + 1)*this.barWidth;
 			for (i = 0; i < this.groupsValueArray.length; ++i) {
 			    g = this.groupsValueArray[i];
 			    if (g) {
                     this.canvasContext.fillStyle = this.groupColors[i];
                     currWidthOffset = widthOffset;
                     for (j = 0; j < g.length; ++j) {
+                        //Y.log('this.canvasContext.fillRect(' +  heightOffset + ',' +  currWidthOffset + ',' +   g[j]*this.barLengthScaler + ',' +  this.barWidth + ');');
                         this.canvasContext.fillRect(heightOffset, currWidthOffset, g[j]*this.barLengthScaler, this.barWidth);
                         currWidthOffset += groupWidthOffset;
                     }
