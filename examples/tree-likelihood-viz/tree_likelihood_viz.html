@@ -14,11 +14,26 @@ body {
 	padding:0;
 }
 </style>
-<script src="/lib/modernizr.min.js" type="text/javascript"></script>
+
+<!-- Release-mode includes 
+
 <link rel="stylesheet" href="./lib/yui2/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
 <script type="text/javascript" src="./lib/yui3/build/yui/yui-debug.js"></script>
 <script type="text/javascript" src="./lib/stacktrace.js"></script>
 <script type="text/javascript" src="./lib/nodes-ed-hack.js"></script>
+ end-Release-mode includes -->
+
+<!-- Debug-mode includes  -->
+<link rel="stylesheet" href="../../../yui2/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../../stacktrace.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/joined-input-slider/joined-input-slider-debug.js"></script>
+<script type="text/javascript" src="../../src/four-leaf-widget/four-leaf-widget-debug.js"></script>
+<script type="text/javascript" src="../../src/four-leaf-tree-calculator/four-leaf-tree-calculator-debug.js"></script>
+<script type="text/javascript" src="../../src/grouped-histogram/grouped-histogram-debug.js"></script>
+<!-- end-Debug-mode includes -->
+
 <style type="text/css">
 	input {
 		width: 8em;

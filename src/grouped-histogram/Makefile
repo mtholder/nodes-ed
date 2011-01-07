@@ -1,23 +1,18 @@
 COMPONENT_NAME = grouped-histogram
 COMPILED_COMPONENT = build_tmp/$(COMPONENT_NAME).js
 UNCOMPILED_COMPONENT = js/$(COMPONENT_NAME).js
+AUTHORED_COMPONENT = $(COMPONENT_NAME)-debug.js
 
-.PHONY : clean hack all
+.PHONY : clean all
 
-all : $(COMPILED_COMPONENT) hack
-
+all : $(COMPILED_COMPONENT)
 
 $(COMPILED_COMPONENT) : $(UNCOMPILED_COMPONENT)
 	ant all
 
-hack: $(UNCOMPILED_COMPONENT)
-	@echo "YUI.add('$(COMPONENT_NAME)', function(Y) {" > build_tmp/$(COMPONENT_NAME)-hack.js
-	@echo >> build_tmp/$(COMPONENT_NAME)-hack.js
-	@cat $(UNCOMPILED_COMPONENT) >> build_tmp/$(COMPONENT_NAME)-hack.js
-	@echo >> build_tmp/$(COMPONENT_NAME)-hack.js
-	@echo >> build_tmp/$(COMPONENT_NAME)-hack.js
-	@echo "}, '@VERSION@' ,{requires:['event-key', 'widget', 'console', 'slider', 'node']});" >> build_tmp/$(COMPONENT_NAME)-hack.js
-
+$(UNCOMPILED_COMPONENT) : $(AUTHORED_COMPONENT)
+	sed '/\/\/AUTOMATICALLY-PRUNE/d' $(AUTHORED_COMPONENT) > $(UNCOMPILED_COMPONENT)
 
 clean :
 	ant clean
+	rm $(UNCOMPILED_COMPONENT)

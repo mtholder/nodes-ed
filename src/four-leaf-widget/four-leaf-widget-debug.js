@@ -1,3 +1,4 @@
+YUI.add('four-leaf-widget', function(Y) { //AUTOMATICALLY-PRUNE
 
 function FourLeafWidget(config) {
 	FourLeafWidget.superclass.constructor.apply(this, arguments);
@@ -349,3 +350,4 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 });
 
 
+}, '@VERSION@' ,{requires:['widget', 'console', 'joined-input-slider', 'node']}); //AUTOMATICALLY-PRUNE

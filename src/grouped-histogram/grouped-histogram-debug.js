@@ -1,3 +1,4 @@
+YUI.add('grouped-histogram', function(Y) { //AUTOMATICALLY-PRUNE
 function GroupedHistogram(config) {
 	GroupedHistogram.superclass.constructor.apply(this, arguments);
 }
@@ -227,3 +228,4 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 });
 
 
+}, '@VERSION@' ,{requires:['widget', 'node']}); //AUTOMATICALLY-PRUNE

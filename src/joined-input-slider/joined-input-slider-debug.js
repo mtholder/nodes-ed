@@ -1,3 +1,4 @@
+YUI.add('joined-input-slider', function(Y) { //AUTOMATICALLY-PRUNE
 
 
 
@@ -289,3 +290,4 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 });
 
 
+}, '@VERSION@' ,{requires:['event-key', 'widget', 'console', 'slider', 'node']}); //AUTOMATICALLY-PRUNE
