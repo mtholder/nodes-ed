@@ -3,25 +3,24 @@ YUI.add('four-leaf-tree-calculator', function(Y) { //AUTOMATICALLY-PRUNE
 
 
 function FourLeafTreeCalculator(config) {
-	Y.log('FourLeafTreeCalculator.ctor');
 	FourLeafTreeCalculator.superclass.constructor.apply(this, arguments);
 }
 
-Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Widget, {
+Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 
 	initializer : function(config) {
-		Y.log('FourLeafTreeCalculatorClass.ctor');
+		Y.log('FourLeafTreeCalculator.initializer ');
 		this.topoIndex = config.topoIndex;
 		this.name = config.name;
 	
 		this.leafUpLeftIndex = 0;
-		if (this.treeIndex == 1) { // AC|BD
+		if (this.topoIndex == 1) { // AC|BD
 			this.leafUpRightIndex = 1;
 			this.leafDownLeftIndex = 2;
 			this.leafDownRightIndex = 3;
 			this._calcIndexToStd = [0, 1, 4, 5, 2, 3, 6, 7];
 		}
-		else if (this.treeIndex == 2) {  // AD| BC
+		else if (this.topoIndex == 2) {  // AD| BC
 			this.leafUpRightIndex = 1;
 			this.leafDownLeftIndex = 3;
 			this.leafDownRightIndex = 2;
@@ -38,7 +37,6 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Widget, {
 		this._standardForm = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 		this.wait = null;
 		this.edgeLenContainer = config.edgeLenContainer;
-		Y.log('FourLeafTreeCalculator.initializer');
 		this.edgeLenContainer.after("valueChange", Y.bind(this._afterEdgeChange, this));
 	},
 	
@@ -109,9 +107,9 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Widget, {
 		for (i = 0; i < 8; ++i) {
 			this._standardForm[i] = this._calculatedValues[this._calcIndexToStd[i]];
 		}
-		Y.log('probs =  [' + this._standardForm[0] + ', '+ this._standardForm[1] + ', '+ this._standardForm[2] + ', '+ this._standardForm[3] + ', ...');
-		Y.log('   ' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
-		//this.set('value', this._standardForm);
+		//Y.log('probs =  [' + this._standardForm[0] + ', '+ this._standardForm[1] + ', '+ this._standardForm[2] + ', '+ this._standardForm[3] + ', ...');
+		//Y.log('   ' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
+		this.set('value', this._standardForm);
 	},
 
 	_validateValue: function(val) {
@@ -148,4 +146,4 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Widget, {
 
 
 
-}, '@VERSION@' ,{requires:['event-key', 'widget', 'console', 'slider', 'node']}); //AUTOMATICALLY-PRUNE
+}, '@VERSION@' ,{requires:['event-key', 'base', 'console', 'slider', 'node']}); //AUTOMATICALLY-PRUNE
