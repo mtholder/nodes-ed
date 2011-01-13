@@ -38,12 +38,14 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 		this.wait = null;
 		this.edgeLenContainer = config.edgeLenContainer;
 		this.edgeLenContainer.after("valueChange", Y.bind(this._afterEdgeChange, this));
+		this._afterEdgeChange({newVal : this.edgeLenContainer.get('value')});
 	},
 	
 	_afterEdgeChange : function (e) {
 		var edgeLenArray;
 		edgeLenArray = e.newVal;
 		if (!Y.Lang.isArray(edgeLenArray)) {
+    		Y.log('_afterEdgeChange for ' + edgeLenArray);
 			return;
 		}
 		Y.log('_afterEdgeChange for ' + this.name + ' edgeLenArray = [' + edgeLenArray[0] + ', '+ edgeLenArray[1] + ', '+ edgeLenArray[2] + ', '+ edgeLenArray[3] + ', '+ edgeLenArray[4] + ']');
@@ -109,6 +111,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 		}
 		//Y.log('probs =  [' + this._standardForm[0] + ', '+ this._standardForm[1] + ', '+ this._standardForm[2] + ', '+ this._standardForm[3] + ', ...');
 		//Y.log('   ' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
+		
 		this.set('value', this._standardForm);
 	},
 

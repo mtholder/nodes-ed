@@ -96,9 +96,11 @@ YUI({debug : DEBUGGING}).use('event-key',
 							 'slider',
 							 'node',
 							 'joined-input-slider',
-							 'four-leaf-widget',
+							 'four-leaf-tree-canvas',
+							 'four-leaf-tree-widget',
 							 'four-leaf-tree-calculator',
 							 'grouped-histogram',
+							 'node-event-simulate',
 							 function(Y) {
 
 // load a console in debug mode, so we see the Y.log messages
@@ -120,9 +122,8 @@ if (DEBUGGING) {
 		treeName = treeNameArray[i];
 		parNd = Y.one('#' + 'tree' + treeName + 'Div');
 		Y.log("parNd is " + parNd);
-		flw = new Y.FourLeafWidget({treeName : treeName,
-									treeIndex : i,
-									parNd : parNd});
+		flw = new Y.FourLeafTreeWidget({treeName : treeName,
+									treeIndex : i});
 
 		flw.render(parNd);
 		flc = new Y.FourLeafTreeCalculator({name : treeName, 
@@ -130,11 +131,21 @@ if (DEBUGGING) {
 								edgeLenContainer : flw});
 		calcArray[i] = flc;
 		treeWidgets[i] = flw;
-		colorArray[i] = flw.color;
+		colorArray[i] = flw.get('color');
 	}
 	parNd = Y.one('#patProbs');
-	ppPanel = new Y.GroupedHistogram({groups : calcArray, colorArray : colorArray});
+	ppPanel = new Y.GroupedHistogram({
+						groups : calcArray, 
+						colorArray : colorArray});
 	ppPanel.render(parNd);
+	
+	for (i = 0; i < treeWidgets.length; ++i) {
+		flwi = treeWidgets[i];
+		Y.later(200, calcArray[i], function (o) {
+			this.set('value', flwi.get('value'));
+		 });
+	}
+	
 	return;
 }
 );

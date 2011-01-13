@@ -1,19 +1,18 @@
-YUI.add('four-leaf-widget', function(Y) { //AUTOMATICALLY-PRUNE
+YUI.add('four-leaf-tree-canvas', function(Y) { //AUTOMATICALLY-PRUNE
 
-function FourLeafWidget(config) {
-	FourLeafWidget.superclass.constructor.apply(this, arguments);
+function FourLeafTreeCanvas(config) {
+	FourLeafTreeCanvas.superclass.constructor.apply(this, arguments);
 }
 
 
-Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
+Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 		// identifies the classname applied to the value field
 		CANVAS_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetCanvas'),
 		CANVAS_TEMPLATE : '<canvas width="300" height="200" class="' + Y.ClassNameManager.getClassName('fourLeafWidgetCanvas') + '">',
-		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('joinedInputSlider') + '-group"',
-		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
         
 		initializer: function(config) {
-			var i, inp;
+		    //Y.log('FourLeafTreeCanvas.initializer');
+			var i, inp, c;
 			this.treeName = config.treeName;
 			this.leafNames = ['A', 'B', 'C', 'D']; //\todo should be in ATTRS
 			this.treeIndex = config.treeIndex;
@@ -23,136 +22,66 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				this.leafUpRightIndex = 1;
 				this.leafDownLeftIndex = 2;
 				this.leafDownRightIndex = 3;
-				this.color = "#FF5555";
+				this.set('color', "#FF5555");
 			}
 			else if (this.treeIndex == 2) {
 				this.leafUpRightIndex = 1;
 				this.leafDownLeftIndex = 3;
 				this.leafDownRightIndex = 2;
-				this.color = "#0000FF";
+				this.set('color', "#0000FF");
 			}
 			else {
 				this.leafUpRightIndex = 2;
 				this.leafDownLeftIndex = 1;
 				this.leafDownRightIndex = 3;
-				this.color = "#00DD00";
+				this.set('color', "#00DD00");
 			}
 			this.internalIndex = 4; // this is the same for all three trees
-
+			
+			c = config.color;
+            if (!NdEjs.isNone(c)) {
+                this.set('color', c);
+            }
 			this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
 			this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
 			
-			this.inputNode = null;
-			this.inputArray = null;
 			this.canvasDOMNd = null;
 			this.canvasNd = null;
-			this.canvasContex = null;
+			this.canvasContext = null;
+			
+			this._edgeLenToPlot = [];
+			this.edgeLenValueSource = [];
+				
 		},
 
 		destructor : function() {
-			//Y.log('in destructor');
-			this._documentMouseUpHandle.detach();
-
-			this.inputNode = null;
-			this.inputArray = null;
-			
-			this.canvasContex = null;
+			//Y.log('in FourLeafTreeCanvas.destructor');
+			this.canvasContext = null;
 			this.canvasDOMNd = null;
 			this.canvasNd = null;
+			this.edgeLenValueSource = null;
+			this._edgeLenToPlot = null;
 			
 		},
 
 		renderUI : function() {
-			//Y.log('in renderUI');
-			this._renderEdgeLengthSliders();
+			//Y.log('in FourLeafTreeCanvas.renderUI');
 			this._renderCanvas();
 			this._paint();
 		},
 
 		bindUI : function() {
-			//Y.log('in bindUI');
-			var i, inp;
-			for (i = 0; i < this.inputArray.length; ++i) {
-				inp = this.inputArray[i];
-				inp.after("valueChange", Y.bind(this._afterEdgeLengthChanged, this, i));
-			}
+			//Y.log('in FourLeafTreeCanvas.bindUI');
+			this.after('colorChange', Y.bind(this._colorChanged, this));
 		},
 
 		syncUI : function() {
-			//Y.log('in syncUI');
+			//Y.log('in FourLeafTreeCanvas.syncUI');
 			this._uiSetValue(this.get("value"));
 		},
 
-		_renderEdgeLengthSliders : function() {
-			//Y.log('in _renderEdgeLengthSliders');
-			var contentBox = this.get("contentBox"),
-				inpNode = this.inputNode,
-				v, i, inpgroupid;
-
-			Y.log('creating inpNode');
-			if (!inpNode) {
-				NdEjs.logObject(contentBox, Y.log);
-				inpgroupid =  this.treeName + '-input';
-				contentBox.append(this.INPUT_NODE_TEMPLATE + ' id="' + inpgroupid + '">');
-				inpNode = contentBox.one("#" + inpgroupid);
-			}
-			
-			this.inputNode = inpNode;
-			this.inputArray = this._createEdgeLengthSliders(this.inputNode, this.treeName);
-			v = this.get('value');
-			if (this._validateValue(v)) {
-				this._uiSetValue(v);
-			}
-			else {
-				v = [];
-			}
-		},
-
-		_createEdgeLengthSliders : function(srcNode, treeName) {
-			var jInpSlider, i, edgeNd, edgeNameArray, edgeValueWidgets, edgeName, eid;
-			edgeNameArray = ['A', 'B', 'C', 'D', 'Internal'];
-				edgeValueWidgets = [];
-			try {
-				for (i = 0; i < edgeNameArray.length; ++i) {
-					edgeName = edgeNameArray[i];
-					eid = treeName + 'edge' + edgeName;
-					srcNode.append('<input type="text" id="' + eid + '" class="yui3-joinedInputSlider-loading" value="0.05" />');
-				}
-				for (i = 0; i < edgeNameArray.length; ++i) {
-					edgeName = edgeNameArray[i];
-					eid = treeName + 'edge' + edgeName;
-					edgeNd = Y.one('#' + eid);
-					NdEjs.logObject(edgeNd, Y.log);
-					jInpSlider = new Y.JoinedInputSlider({
-						srcNode : edgeNd,
-						value : edgeNd.get("value"),
-						max : 0.5,
-						min : 0.0,
-						minorStep : 0.0001,
-						majorStep : 0.01
-					});
-					edgeValueWidgets[i] = jInpSlider;
-				}
-				for (i = 0; i < edgeValueWidgets.length; ++i) {
-					edgeValueWidgets[i].render();
-					edgeValueWidgets[i].focus();
-				}
-				return edgeValueWidgets;
-			}
-			catch (e) {
-				NdEjs.logException(e, Y.log); 
-				try {
-					NdEjs.logException(e, Y.log);
-				}
-				catch (ee) {
-					Y.log("EE = " + ee);
-				}
-				throw e;
-			}
-		},
-
 		_renderCanvas : function() {
-			//Y.log('in _renderCanvas');
+			//Y.log('in FourLeafTreeCanvas._renderCanvas');
 			
 			var contentBox = this.get("contentBox"),
 				strings,
@@ -164,12 +93,12 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				contentBox.prepend(canvYuiNode);
 			}
 			this.canvasNd = canvYuiNode;
-			
 			this.canvasDOMNd = Y.Node.getDOMNode(this.canvasNd);
+			//Y.log('in FourLeafTreeCanvas._renderCanvas canvasDOMNd = ' + this.canvasDOMNd + ' this.canvasDOMNd.width=' + this.canvasDOMNd.width);
 			this.canvasContext = this.canvasDOMNd.getContext("2d");
+			//Y.log('in FourLeafTreeCanvas._renderCanvas canvasContext = ' + this.canvasContext + ' this.color=' + this.color);
 			this.canvasContext.font = "bold 12pt fixed-width";
-			this.canvasContext.strokeStyle = this.color;
-			this.canvasContext.fillStyle = this.color;
+			this._colorChanged();
 
 		  },
 		  
@@ -184,28 +113,43 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			  
 		_paint : function () {
 			this._updateEdgeLengthsFromInput();
-			this._plot();
+			this._paintFromCachedVals();
 		},
 
 		_updateEdgeLengthsFromInput : function() {
 			var i, 
-				v = new Array(5);
-			for (i = 0; i < this.inputArray.length; ++i) {
-				v[i] = +(this.inputArray[i].get('value'));
-				//Y.log('_updateEdgeLengthsFromInput v[' + i + '] = ' + v[i]);
+				elvs,
+				nv, 
+				changedVal = false;
+			if (this.edgeLenValueSource) {
+                for (i = 0; i < this.edgeLenValueSource.length; ++i) {
+                    elvs = this.edgeLenValueSource[i];
+                    if (elvs) {
+                        nv = +(this.edgeLenValueSource[i].get('value'));
+                        if (nv != this._edgeLenToPlot[i]) {
+                            this._edgeLenToPlot[i] = nv;
+                            changedVal = true;
+                        }
+                        //Y.log('_updateEdgeLengthsFromInput this._edgeLenToPlot[' + i + '] = ' + this._edgeLenToPlot[i]);
+                    }
+                }
+            }
+			if (changedVal) {
+			    this.set('value', this._edgeLenToPlot);
 			}
-			this.set('value', v);
 		},
 	
-		_plot : function () {			
+		_paintFromCachedVals : function () {			
 			this._calcCoordinates();
 			this._repaintFromCoordinates();
 		},
 
 		_repaintFromCoordinates : function () {
 			var dim, nextLabel;
+			//Y.log('this.canvasContext.clearRect(0, 0, ' + this.canvasDOMNd.width + ', '+ this.canvasDOMNd.height + ')');
 			this.canvasContext.clearRect(0, 0, this.canvasDOMNd.width, this.canvasDOMNd.height);
 			this.canvasContext.beginPath();
+			//Y.log('this.canvasContext.moveTo(' + this.leafUpLeftX + ', '+ this.leafUpLeftY + ')');
 			this.canvasContext.moveTo(this.leafUpLeftX, this.leafUpLeftY);
 			this.canvasContext.lineTo(this.leftIntX, this.leftIntY);
 			this.canvasContext.lineTo(this.leafDownLeftX, this.leafDownLeftY);
@@ -238,9 +182,9 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				xScaler,
 				yScaler,
 				v;
-			v = this.get('value');
+			v = this._edgeLenToPlot;
 
-			if (NdEjs.isNone(v)) {
+			if (v.length == 0) {
 				this.leftIntX = 0;
 				this.leftIntY = 0;
 				this.rightIntX = 0;
@@ -298,20 +242,304 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 
 
 		_afterValueChange : function(e) {
-			//Y.log('in _afterValueChange');
-			this._uiSetValue(e.newVal);
+			//Y.log('in FourLeafTreeCanvas._afterValueChange');
+			var i, 
+				nv, 
+				changedVal = false;
+			if (e.newVal) {
+                for (i = 0; i < e.newVal.length; ++i) {
+                    nv = +e.newVal[i];
+                    if (nv != this._edgeLenToPlot[i]) {
+                        this._edgeLenToPlot[i] = nv;
+                        changedVal = true;
+                    }
+                }
+            }
+			if (changedVal) {
+			    this._uiSetValue(e.newVal);
+			}
+			
 		},
 
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
-			var i, inp;
+			var i, inp, elvs;
 			if (NdEjs.isNone(val)) {
 				return;
 			}
-			for (i = 0; (i < val.length && i < 5) ; ++i ) {
-				this.inputArray[i].set('value', val[i]);
-			}
+			if (this.edgeLenValueSource) {
+                for (i = 0; (i < val.length && i < 5) ; ++i ) {
+                    elvs = this.edgeLenValueSource[i]; 
+                    nv = +val[i];
+                    if (elvs && nv != +elvs.get('value')) {
+                        elvs.set('value', val[i]);
+                    }
+                }
+            }
 			this._paint();
+		},
+		_colorChanged : function() {
+            var c = this.get('color');
+            if (this.canvasContext) {
+                this.canvasContext.strokeStyle = c;
+	    		this.canvasContext.fillStyle = c;
+	    	}
+
+		},
+		// returns true if the val is an array of at least 5 numbers in the range [min, max]
+		_validateValue: function(val) {
+			var min = this.get("min"), 
+				max = this.get("max"),
+				i,v;
+			//Y.log("_validateValue val=" + val);
+			if (!Y.Lang.isArray(val) || val.length < 5) {
+                //Y.log("_validateValue returning false");
+				return false;
+			}
+			for (i = 0; i < 5; i++) {
+			    v = val[i];
+	    		//Y.log("_validateValue val[" + i + "]" + v);
+				if (!(Y.Lang.isNumber(+v)&& (+v >= +min) && (+v <= +max))) {
+    	    		//Y.log("_validateValue returning false");
+					return false;
+				}
+			}
+			return true;
+	  }
+	}, {
+	NAME :	"fourLeafTreeCanvas", // required for Widget classes and used as event prefix
+
+	ATTRS : {
+		min :	{ value : 0.0 }, // min branch length
+		max :	{ value : Infinity}, // max branch length
+		value : { value : null,
+				  validator : function(val) {
+						return this._validateValue(val);
+					}
+				},
+		color : { value : null}
+		}
+	
+});
+
+}, '@VERSION@' ,{requires:['widget', 'console', 'joined-input-slider', 'node']}); //AUTOMATICALLY-PRUNE
+
+
+
+
+
+
+
+YUI.add('four-leaf-tree-widget', function(Y) { //AUTOMATICALLY-PRUNE
+
+function FourLeafTreeWidget(config) {
+	FourLeafTreeWidget.superclass.constructor.apply(this, arguments);
+}
+
+
+Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
+		// identifies the classname applied to the value field
+		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('joinedInputSlider') + '-group"',
+		CANVAS_NODE_DIV_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('FourLeafTreeCanvas') + '-div"',
+		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label"',
+		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
+        
+		initializer: function(config) {
+			//Y.log('in FourLeafTreeWidget.initializer');
+			var i, inp;
+			this.treeName = config.treeName;
+			this.leafNames = ['A', 'B', 'C', 'D']; //\todo should be in ATTRS
+			this.treeIndex = config.treeIndex;
+			this.edgeNameArray = ['A', 'B', 'C', 'D', 'internal'];
+			
+			this.inputNode = null;
+			this.inputArray = null;
+			this.treeCanvas = null;
+
+		},
+
+		destructor : function() {
+			//Y.log('in FourLeafTreeWidget.destructor');
+			this.inputNode = null;
+			this.inputArray = null;
+			this.treeCanvas = null;
+			
+		},
+
+		renderUI : function() {
+			//Y.log('in FourLeafTreeWidget.renderUI');
+			this._renderCanvas();
+			this._renderEdgeLengthSliders();
+		},
+
+		bindUI : function() {
+			//Y.log('in FourLeafTreeWidget.bindUI');
+			var i, inp, iv = [];
+            if (!this.treeCanvas) {
+			    this._createCanvas();
+            }
+            if (!this.inputArray) {
+                this._createInputs();
+            }
+			for (i = 0; i < this.inputArray.length; ++i) {
+				inp = this.inputArray[i];
+				inp.after("valueChange", Y.bind(this.treeCanvas._afterEdgeLengthChanged, this.treeCanvas, i));
+				inp.after("valueChange", Y.bind(this._afterEdgeLengthChanged, this, i));
+				iv[i] = inp.get('value');
+			}
+			this.after("colorChange", Y.bind(this._colorChanged, this));
+			this.treeCanvas.set('value', iv);
+			this.set('value', iv);
+		},
+
+		syncUI : function() {
+			//Y.log('in FourLeafTreeWidget.syncUI');
+			if (this.treeCanvas !== null) {
+			    this.treeCanvas.syncUI();
+			}
+		},
+
+		_renderEdgeLengthSliders : function() {
+			//Y.log('in _renderEdgeLengthSliders');
+            var inp, cb, lab, v = this.get('value');
+            if (!this.inputArray) {
+                this._createInputs();
+            }
+            
+            for (i = 0; i < this.inputArray.length; ++i) {
+                inp = this.inputArray[i];
+				inp.render(this);
+                cb = inp.get('contentBox');
+                lab = Y.Node.create(this.LABEL_TEMPLATE);
+				lab.set('text', ' Edge: ' + this.edgeNameArray[i]);
+				cb.appendChild(lab);
+
+			}
+
+			if (this._validateValue(v)) {
+				this._uiSetValue(v);
+			}
+		},
+        
+        _createInputs : function() {
+            Y.log('FourLeafTreeWidget._createInputs')
+            var v;
+			var contentBox = this.get("contentBox"),
+				inpNode = this.inputNode,
+				i, inpgroupid;
+			if (!inpNode) {
+				inpgroupid =  this.treeName + '-input';
+				contentBox.append(this.INPUT_NODE_TEMPLATE + ' id="' + inpgroupid + '">');
+				inpNode = contentBox.one("#" + inpgroupid);
+			}
+			
+			this.inputNode = inpNode;
+			this.inputArray = this._createEdgeLengthSliders(this.inputNode, this.treeName);
+			if (this.treeCanvas) {
+			    this.treeCanvas.edgeLenValueSource = this.inputArray;
+			}
+        },
+		_createEdgeLengthSliders : function(srcNode, treeName) {
+			var jInpSlider, i, edgeNd, edgeValueWidgets, edgeName, eid;
+			
+				edgeValueWidgets = [];
+			try {
+				for (i = 0; i < this.edgeNameArray.length; ++i) {
+					edgeName = this.edgeNameArray[i];
+					eid = treeName + 'edge' + edgeName;
+					srcNode.append('<input type="text" id="' + eid + '" class="yui3-joinedInputSlider-loading" value="0.05" />');
+				}
+				for (i = 0; i < this.edgeNameArray.length; ++i) {
+					edgeName = this.edgeNameArray[i];
+					eid = treeName + 'edge' + edgeName;
+					edgeNd = Y.one('#' + eid);
+					//NdEjs.logObject(edgeNd, Y.log);
+					jInpSlider = new Y.JoinedInputSlider({
+						srcNode : edgeNd,
+						value : edgeNd.get("value"),
+						max : 0.5,
+						min : 0.0,
+						minorStep : 0.0001,
+						majorStep : 0.01
+					});
+					edgeValueWidgets[i] = jInpSlider;
+				}
+				return edgeValueWidgets;
+			}
+			catch (e) {
+				NdEjs.logException(e, Y.log); 
+				try {
+					NdEjs.logException(e, Y.log);
+				}
+				catch (ee) {
+					Y.log("EE = " + ee);
+				}
+				throw e;
+			}
+		},
+        _createCanvas : function () {
+            var contentBox = this.get("contentBox"),
+			    inpgroupid,
+				inpNode = this.treeCanvas;
+			//Y.log('creating treeCanvas');
+			if (!inpNode) {
+				inpgroupid =  this.treeName + '-canvas-div';
+				contentBox.append(this.CANVAS_NODE_DIV_TEMPLATE + ' id="' + inpgroupid + '">');
+				inpNode = contentBox.one("#" + inpgroupid);
+			}
+            this.treeCanvas = new Y.FourLeafTreeCanvas({
+                    srcNode : inpNode,
+                    treeName : this.treeName,
+                    leafNames : this.leafNames,
+                    treeIndex : this.treeIndex,
+                    color : this.get('color')
+                });
+            this.set('color', this.treeCanvas.get('color'));
+			if (this.inputArray) {
+			    this.treeCanvas.edgeLenValueSource = this.inputArray;
+			}
+            inpNode.append(this.treeCanvas);
+        },
+        
+		_renderCanvas : function() {
+			//Y.log('in _renderCanvas');
+			if (!this.treeCanvas) {
+			    this._createCanvas();
+            }
+            this.treeCanvas.render(this);
+		  },
+		  
+		_defaultCB : function() {
+			return null;
+		},
+
+		_afterEdgeLengthChanged : function (index, e) {
+			var i, v = this.get('value');
+			if (NdEjs.isNone(v)) {
+			    if (NdEjs.isNone(this.inputArray)) {
+			        return;
+			    }
+			    v = [];
+			    for (i = 0; i < this.inputArray.length; ++i) {
+			        v[i] = this.inputArray[i].get('value');
+			    }
+			}
+			else {
+			    v[index] = +e.newVal;
+			}
+			this.set('value', v);
+		},
+		
+		_colorChanged : function(e) {
+		    this.treeCanvas.color = e.newVal;
+		    this.treeCanvas._paint();
+		},
+
+		_afterValueChange : function(e) {
+			//Y.log('in _afterValueChange');
+			if (this.treeCanvas !== null) {
+			    this.treeCanvas.set('value', e);
+			}
 		},
 
 		// returns true if the val is an array of at least 5 numbers in the range [min, max]
@@ -335,7 +563,7 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 			return true;
 	  }
 	}, {
-	NAME :	"fourLeafWidget", // required for Widget classes and used as event prefix
+	NAME :	"fourLeafTreeWidget", // required for Widget classes and used as event prefix
 
 	ATTRS : {
 		min :	{ value : 0.0 }, // min branch length
@@ -344,7 +572,8 @@ Y.FourLeafWidget = Y.extend(FourLeafWidget, Y.Widget, {
 				  validator : function(val) {
 						return this._validateValue(val);
 					}
-				}
+				},
+	    color : { value : null }
 		}
 	
 });

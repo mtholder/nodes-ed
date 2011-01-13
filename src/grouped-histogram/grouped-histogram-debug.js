@@ -106,6 +106,9 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 			this.canvasDOMNd = Y.Node.getDOMNode(this.canvasNd);
 			this.canvasContext = this.canvasDOMNd.getContext("2d");
 			this.canvasContext.font = "bold 12pt fixed-width";
+			for (i = 0; i < this.groupsArray.length; ++i) {
+			    this._afterGroupValueChanged(i, {newVal : this.groupsArray[i].get('value')});
+			}
 		  },
 		  
 		_defaultCB : function() {
@@ -164,6 +167,10 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
         },
 		  
 		_afterGroupValueChanged : function (index, e) {
+		    if (NdEjs.isNone(e.newVal)) {
+    		    Y.log('_afterGroupValueChanged for index ' + index + 'e.nv is NONE');
+    		    return;
+		    }
 		    Y.log('_afterGroupValueChanged for index ' + index + 'e.nv.length = ' + e.newVal.length);
 		    var modToRescalingFactor, beforeExtramaUpdate;
 		    try {
@@ -181,7 +188,8 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 				drawableWidth,
 				xScaler, g, i,
 				yScaler,
-				v, j,currWidthOffset, widthOffset, heightOffset, groupWidthOffset;
+				v, j,currWidthOffset, widthOffset, heightOffset, 
+				groupWidthOffset, c, categoryLabels;
 		    Y.log('GroupedHistogram._paint()');
 		    this.canvasContext.clearRect(0, 0, this.canvasDOMNd.width, this.canvasDOMNd.height);
 			drawableHeight = 0.9*this.canvasDOMNd.width;
@@ -194,13 +202,19 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 			    this.canvasHeight = drawableWidth;
 			    this.barLengthScaler = this.canvasHeight/this.maxValPlottable;
 			}
+			
+			// place the bars on the histogram...
 			widthOffset = this.barWidth/2.0;
 			heightOffset = 0.05*this.canvasDOMNd.width;
 			groupWidthOffset = (this.groupsValueArray.length + 1)*this.barWidth;
 			for (i = 0; i < this.groupsValueArray.length; ++i) {
 			    g = this.groupsValueArray[i];
 			    if (g) {
-                    this.canvasContext.fillStyle = this.groupColors[i];
+			        c = this.groupColors[i];
+			        Y.log('this.groupColors[i] = ' + c);
+                    if (!NdEjs.isNone(c)) {
+                        this.canvasContext.fillStyle = c;
+                    }
                     currWidthOffset = widthOffset;
                     for (j = 0; j < g.length; ++j) {
                         //Y.log('this.canvasContext.fillRect(' +  heightOffset + ',' +  currWidthOffset + ',' +   g[j]*this.barLengthScaler + ',' +  this.barWidth + ');');
@@ -210,6 +224,21 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
                 }
 			    widthOffset += this.barWidth;
 			}
+			
+			// Add axis labels....
+			categoryLabels = this.get('categoryLabels');
+			
+			if ((!NdEjs.isNone(categoryLabels)) && categoryLabels.length > 0) {
+                widthOffset = this.groupsValueArray.length*this.barWidth/2.0;
+                heightOffset = 0.0;
+                for (i = 0; i < this.numCategories; ++i) {
+                    label = this.categoryLabels[i];
+        			dim = this.canvasContext.measureText(label);
+		        	this.canvasContext.fillText(label, heightOffset, widthOffset);
+		        	widthOffset += this.groupsValueArray.length*this.barWidth;
+                }
+            }
+			
 		},
 
 		// Updates the input box and slider to reflect val
@@ -222,7 +251,8 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 
 	ATTRS : {
 		yUpperLimit :	{ value : -Infinity },
-		yLowerLimit :	{ value : Infinity}
+		yLowerLimit : 	{ value : Infinity },
+		categoryLabels : { value : null }
 		}
 	
 });
