@@ -26,6 +26,7 @@ Release-mode includes -->
 
 <!-- Debug-mode includes  -->
 <link rel="stylesheet" href="../../../yui2/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+<!--script type="text/javascript" src="../../../yui2/build/yahoo/yahoo-debug.js"></script-->
 <script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
 <script type="text/javascript" src="../../../stacktrace.js"></script>
 <script type="text/javascript" src="../../src/js/util.js"></script>
@@ -62,6 +63,8 @@ Release-mode includes -->
 <body class="yui3-skin-sam	yui-skin-sam">
 <div id="doc" class="yui-t7">
 <div id="hd" role="banner"><h1>Visualization of the likelihood of phylogenetic trees</h1></div>
+<div id="panelbrowser"><label>Show:</label></div>
+
 <div id="bd" role="main">
 	<div class="yui-g">
 			<div class="yui-u first">
@@ -101,6 +104,7 @@ YUI({debug : DEBUGGING}).use('event-key',
 							 'four-leaf-tree-calculator',
 							 'grouped-histogram',
 							 'node-event-simulate',
+							 'yui2-button',
 							 function(Y) {
 
 // load a console in debug mode, so we see the Y.log messages
@@ -120,7 +124,7 @@ if (DEBUGGING) {
 
 	for (i = 0; i < treeNameArray.length; ++i) {
 		treeName = treeNameArray[i];
-		parNd = Y.one('#' + 'tree' + treeName + 'Div');
+		parNd = Y.one('#tree' + treeName + 'Div');
 		Y.log("parNd is " + parNd);
 		flw = new Y.FourLeafTreeWidget({treeName : treeName,
 									treeIndex : i});
@@ -133,11 +137,19 @@ if (DEBUGGING) {
 		treeWidgets[i] = flw;
 		colorArray[i] = flw.get('color');
 	}
-	parNd = Y.one('#patProbs');
+	ppPanelDiv = Y.one('#patProbs');
 	ppPanel = new Y.GroupedHistogram({
 						groups : calcArray, 
-						colorArray : colorArray});
-	ppPanel.render(parNd);
+						colorArray : colorArray,
+						categoryLabels : ["0000",
+										  "0001",
+										  "0010",
+										  "0011",
+										  "0100",
+										  "0101",
+										  "0110",
+										  "0111"]});
+	ppPanel.render(ppPanelDiv);
 	
 	for (i = 0; i < treeWidgets.length; ++i) {
 		flwi = treeWidgets[i];
@@ -145,6 +157,37 @@ if (DEBUGGING) {
 			this.set('value', flwi.get('value'));
 		 });
 	}
+	
+	var Button = Y.YUI2.widget.Button;
+	var createShowHide = function (label, idtag, container, toControl) {
+		var b = new Button({
+					type: "checkbox",
+					label: label,
+					id: "checkbutton" + idtag,
+					name: "checkbox" + idtag,
+					value: "1", 
+					container: container, 
+					onclick : {fn : function (e) {
+									e.target.checked = ! e.target.checked;
+									if (e.target.checked) {
+										toControl.hide();
+									}
+									else {
+										toControl.show();
+									}
+								}
+							},
+					checked : true
+				});
+		return b;
+	}
+	var container = 'panelbrowser';
+	var oCheckButton9 = createShowHide("Pattern Probs", 'patprob', container, ppPanelDiv);
+	var abdiv = Y.one('#treeABDiv');
+    var oCheckButton10 = createShowHide("AB | CD", 'ab', container, abdiv);
+    var oCheckButton10 = createShowHide("AC | BD", 'ac', container, Y.one('#treeACDiv'));
+    var oCheckButton10 = createShowHide("AD | BC", 'ad', container, Y.one('#treeADDiv'));
+	
 	
 	return;
 }

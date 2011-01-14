@@ -9,10 +9,10 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 		// identifies the classname applied to the value field
 		CANVAS_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetCanvas'),
 		CANVAS_TEMPLATE : '<canvas width="300" height="200" class="' + Y.ClassNameManager.getClassName('fourLeafWidgetCanvas') + '">',
-        
+		
 		initializer: function(config) {
-		    //Y.log('FourLeafTreeCanvas.initializer');
-			var i, inp, c;
+			//Y.log('FourLeafTreeCanvas.initializer');
+			var c;
 			this.treeName = config.treeName;
 			this.leafNames = ['A', 'B', 'C', 'D']; //\todo should be in ATTRS
 			this.treeIndex = config.treeIndex;
@@ -39,9 +39,9 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			this.internalIndex = 4; // this is the same for all three trees
 			
 			c = config.color;
-            if (!NdEjs.isNone(c)) {
-                this.set('color', c);
-            }
+			if (!NdEjs.isNone(c)) {
+				this.set('color', c);
+			}
 			this.X_ANGLE_MULTIPLIER = Math.sqrt(2);
 			this.Y_ANGLE_MULTIPLIER = Math.sqrt(2);
 			
@@ -84,10 +84,8 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			//Y.log('in FourLeafTreeCanvas._renderCanvas');
 			
 			var contentBox = this.get("contentBox"),
-				strings,
-				inc,
 				canvYuiNode = null;
-			canvYuiNode = contentBox.one("." + this.CANVAS_CLASS)
+			canvYuiNode = contentBox.one("." + this.CANVAS_CLASS);
 			if (!canvYuiNode) {
 				canvYuiNode = Y.Node.create(this.CANVAS_TEMPLATE);
 				contentBox.prepend(canvYuiNode);
@@ -122,20 +120,20 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				nv, 
 				changedVal = false;
 			if (this.edgeLenValueSource) {
-                for (i = 0; i < this.edgeLenValueSource.length; ++i) {
-                    elvs = this.edgeLenValueSource[i];
-                    if (elvs) {
-                        nv = +(this.edgeLenValueSource[i].get('value'));
-                        if (nv != this._edgeLenToPlot[i]) {
-                            this._edgeLenToPlot[i] = nv;
-                            changedVal = true;
-                        }
-                        //Y.log('_updateEdgeLengthsFromInput this._edgeLenToPlot[' + i + '] = ' + this._edgeLenToPlot[i]);
-                    }
-                }
-            }
+				for (i = 0; i < this.edgeLenValueSource.length; ++i) {
+					elvs = this.edgeLenValueSource[i];
+					if (elvs) {
+						nv = +(this.edgeLenValueSource[i].get('value'));
+						if (nv != this._edgeLenToPlot[i]) {
+							this._edgeLenToPlot[i] = nv;
+							changedVal = true;
+						}
+						//Y.log('_updateEdgeLengthsFromInput this._edgeLenToPlot[' + i + '] = ' + this._edgeLenToPlot[i]);
+					}
+				}
+			}
 			if (changedVal) {
-			    this.set('value', this._edgeLenToPlot);
+				this.set('value', this._edgeLenToPlot);
 			}
 		},
 	
@@ -184,7 +182,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				v;
 			v = this._edgeLenToPlot;
 
-			if (v.length == 0) {
+			if (v.length === 0) {
 				this.leftIntX = 0;
 				this.leftIntY = 0;
 				this.rightIntX = 0;
@@ -247,43 +245,43 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				nv, 
 				changedVal = false;
 			if (e.newVal) {
-                for (i = 0; i < e.newVal.length; ++i) {
-                    nv = +e.newVal[i];
-                    if (nv != this._edgeLenToPlot[i]) {
-                        this._edgeLenToPlot[i] = nv;
-                        changedVal = true;
-                    }
-                }
-            }
+				for (i = 0; i < e.newVal.length; ++i) {
+					nv = +e.newVal[i];
+					if (nv != this._edgeLenToPlot[i]) {
+						this._edgeLenToPlot[i] = nv;
+						changedVal = true;
+					}
+				}
+			}
 			if (changedVal) {
-			    this._uiSetValue(e.newVal);
+				this._uiSetValue(e.newVal);
 			}
 			
 		},
 
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
-			var i, inp, elvs;
+			var i, elvs, nv;
 			if (NdEjs.isNone(val)) {
 				return;
 			}
 			if (this.edgeLenValueSource) {
-                for (i = 0; (i < val.length && i < 5) ; ++i ) {
-                    elvs = this.edgeLenValueSource[i]; 
-                    nv = +val[i];
-                    if (elvs && nv != +elvs.get('value')) {
-                        elvs.set('value', val[i]);
-                    }
-                }
-            }
+				for (i = 0; (i < val.length && i < 5) ; ++i ) {
+					elvs = this.edgeLenValueSource[i]; 
+					nv = +val[i];
+					if (elvs && nv != +elvs.get('value')) {
+						elvs.set('value', val[i]);
+					}
+				}
+			}
 			this._paint();
 		},
 		_colorChanged : function() {
-            var c = this.get('color');
-            if (this.canvasContext) {
-                this.canvasContext.strokeStyle = c;
-	    		this.canvasContext.fillStyle = c;
-	    	}
+			var c = this.get('color');
+			if (this.canvasContext) {
+				this.canvasContext.strokeStyle = c;
+				this.canvasContext.fillStyle = c;
+			}
 
 		},
 		// returns true if the val is an array of at least 5 numbers in the range [min, max]
@@ -293,14 +291,14 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				i,v;
 			//Y.log("_validateValue val=" + val);
 			if (!Y.Lang.isArray(val) || val.length < 5) {
-                //Y.log("_validateValue returning false");
+				//Y.log("_validateValue returning false");
 				return false;
 			}
 			for (i = 0; i < 5; i++) {
-			    v = val[i];
-	    		//Y.log("_validateValue val[" + i + "]" + v);
+				v = val[i];
+				//Y.log("_validateValue val[" + i + "]" + v);
 				if (!(Y.Lang.isNumber(+v)&& (+v >= +min) && (+v <= +max))) {
-    	    		//Y.log("_validateValue returning false");
+					//Y.log("_validateValue returning false");
 					return false;
 				}
 			}
@@ -343,10 +341,9 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		CANVAS_NODE_DIV_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('FourLeafTreeCanvas') + '-div"',
 		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label"',
 		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
-        
+		
 		initializer: function(config) {
 			//Y.log('in FourLeafTreeWidget.initializer');
-			var i, inp;
 			this.treeName = config.treeName;
 			this.leafNames = ['A', 'B', 'C', 'D']; //\todo should be in ATTRS
 			this.treeIndex = config.treeIndex;
@@ -375,12 +372,12 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		bindUI : function() {
 			//Y.log('in FourLeafTreeWidget.bindUI');
 			var i, inp, iv = [];
-            if (!this.treeCanvas) {
-			    this._createCanvas();
-            }
-            if (!this.inputArray) {
-                this._createInputs();
-            }
+			if (!this.treeCanvas) {
+				this._createCanvas();
+			}
+			if (!this.inputArray) {
+				this._createInputs();
+			}
 			for (i = 0; i < this.inputArray.length; ++i) {
 				inp = this.inputArray[i];
 				inp.after("valueChange", Y.bind(this.treeCanvas._afterEdgeLengthChanged, this.treeCanvas, i));
@@ -395,22 +392,22 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		syncUI : function() {
 			//Y.log('in FourLeafTreeWidget.syncUI');
 			if (this.treeCanvas !== null) {
-			    this.treeCanvas.syncUI();
+				this.treeCanvas.syncUI();
 			}
 		},
 
 		_renderEdgeLengthSliders : function() {
 			//Y.log('in _renderEdgeLengthSliders');
-            var inp, cb, lab, v = this.get('value');
-            if (!this.inputArray) {
-                this._createInputs();
-            }
-            
-            for (i = 0; i < this.inputArray.length; ++i) {
-                inp = this.inputArray[i];
+			var inp, cb, lab, v = this.get('value'), i;
+			if (!this.inputArray) {
+				this._createInputs();
+			}
+			
+			for (i = 0; i < this.inputArray.length; ++i) {
+				inp = this.inputArray[i];
 				inp.render(this);
-                cb = inp.get('contentBox');
-                lab = Y.Node.create(this.LABEL_TEMPLATE);
+				cb = inp.get('contentBox');
+				lab = Y.Node.create(this.LABEL_TEMPLATE);
 				lab.set('text', ' Edge: ' + this.edgeNameArray[i]);
 				cb.appendChild(lab);
 
@@ -420,10 +417,9 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 				this._uiSetValue(v);
 			}
 		},
-        
-        _createInputs : function() {
-            Y.log('FourLeafTreeWidget._createInputs')
-            var v;
+		
+		_createInputs : function() {
+			Y.log('FourLeafTreeWidget._createInputs');
 			var contentBox = this.get("contentBox"),
 				inpNode = this.inputNode,
 				i, inpgroupid;
@@ -436,9 +432,9 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			this.inputNode = inpNode;
 			this.inputArray = this._createEdgeLengthSliders(this.inputNode, this.treeName);
 			if (this.treeCanvas) {
-			    this.treeCanvas.edgeLenValueSource = this.inputArray;
+				this.treeCanvas.edgeLenValueSource = this.inputArray;
 			}
-        },
+		},
 		_createEdgeLengthSliders : function(srcNode, treeName) {
 			var jInpSlider, i, edgeNd, edgeValueWidgets, edgeName, eid;
 			
@@ -477,9 +473,9 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 				throw e;
 			}
 		},
-        _createCanvas : function () {
-            var contentBox = this.get("contentBox"),
-			    inpgroupid,
+		_createCanvas : function () {
+			var contentBox = this.get("contentBox"),
+				inpgroupid,
 				inpNode = this.treeCanvas;
 			//Y.log('creating treeCanvas');
 			if (!inpNode) {
@@ -487,26 +483,26 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 				contentBox.append(this.CANVAS_NODE_DIV_TEMPLATE + ' id="' + inpgroupid + '">');
 				inpNode = contentBox.one("#" + inpgroupid);
 			}
-            this.treeCanvas = new Y.FourLeafTreeCanvas({
-                    srcNode : inpNode,
-                    treeName : this.treeName,
-                    leafNames : this.leafNames,
-                    treeIndex : this.treeIndex,
-                    color : this.get('color')
-                });
-            this.set('color', this.treeCanvas.get('color'));
+			this.treeCanvas = new Y.FourLeafTreeCanvas({
+					srcNode : inpNode,
+					treeName : this.treeName,
+					leafNames : this.leafNames,
+					treeIndex : this.treeIndex,
+					color : this.get('color')
+				});
+			this.set('color', this.treeCanvas.get('color'));
 			if (this.inputArray) {
-			    this.treeCanvas.edgeLenValueSource = this.inputArray;
+				this.treeCanvas.edgeLenValueSource = this.inputArray;
 			}
-            inpNode.append(this.treeCanvas);
-        },
-        
+			inpNode.append(this.treeCanvas);
+		},
+		
 		_renderCanvas : function() {
 			//Y.log('in _renderCanvas');
 			if (!this.treeCanvas) {
-			    this._createCanvas();
-            }
-            this.treeCanvas.render(this);
+				this._createCanvas();
+			}
+			this.treeCanvas.render(this);
 		  },
 		  
 		_defaultCB : function() {
@@ -516,29 +512,29 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		_afterEdgeLengthChanged : function (index, e) {
 			var i, v = this.get('value');
 			if (NdEjs.isNone(v)) {
-			    if (NdEjs.isNone(this.inputArray)) {
-			        return;
-			    }
-			    v = [];
-			    for (i = 0; i < this.inputArray.length; ++i) {
-			        v[i] = this.inputArray[i].get('value');
-			    }
+				if (NdEjs.isNone(this.inputArray)) {
+					return;
+				}
+				v = [];
+				for (i = 0; i < this.inputArray.length; ++i) {
+					v[i] = this.inputArray[i].get('value');
+				}
 			}
 			else {
-			    v[index] = +e.newVal;
+				v[index] = +e.newVal;
 			}
 			this.set('value', v);
 		},
 		
 		_colorChanged : function(e) {
-		    this.treeCanvas.color = e.newVal;
-		    this.treeCanvas._paint();
+			this.treeCanvas.color = e.newVal;
+			this.treeCanvas._paint();
 		},
 
 		_afterValueChange : function(e) {
 			//Y.log('in _afterValueChange');
 			if (this.treeCanvas !== null) {
-			    this.treeCanvas.set('value', e);
+				this.treeCanvas.set('value', e);
 			}
 		},
 
@@ -549,14 +545,14 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 				i,v;
 			//Y.log("_validateValue val=" + val);
 			if (!Y.Lang.isArray(val) || val.length < 5) {
-                //Y.log("_validateValue returning false");
+				//Y.log("_validateValue returning false");
 				return false;
 			}
 			for (i = 0; i < 5; i++) {
-			    v = val[i];
-	    		//Y.log("_validateValue val[" + i + "]" + v);
+				v = val[i];
+				//Y.log("_validateValue val[" + i + "]" + v);
 				if (!(Y.Lang.isNumber(+v)&& (+v >= +min) && (+v <= +max))) {
-    	    		//Y.log("_validateValue returning false");
+					//Y.log("_validateValue returning false");
 					return false;
 				}
 			}
@@ -573,7 +569,7 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 						return this._validateValue(val);
 					}
 				},
-	    color : { value : null }
+		color : { value : null }
 		}
 	
 });

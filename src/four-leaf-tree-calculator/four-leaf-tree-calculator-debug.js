@@ -20,13 +20,13 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 			this.leafDownRightIndex = 3;
 			this._calcIndexToStd = [0, 1, 4, 5, 2, 3, 6, 7];
 		}
-		else if (this.topoIndex == 2) {  // AD| BC
+		else if (this.topoIndex == 2) {	 // AD| BC
 			this.leafUpRightIndex = 1;
 			this.leafDownLeftIndex = 3;
 			this.leafDownRightIndex = 2;
 			this._calcIndexToStd = [0, 4, 1, 5, 2, 6, 3, 7];
 		}
-		else {  // AB | CD, which is the order that we do the pattern calculations in
+		else {	// AB | CD, which is the order that we do the pattern calculations in
 			this.leafUpRightIndex = 2;
 			this.leafDownLeftIndex = 1;
 			this.leafDownRightIndex = 3;
@@ -45,7 +45,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 		var edgeLenArray;
 		edgeLenArray = e.newVal;
 		if (!Y.Lang.isArray(edgeLenArray)) {
-    		Y.log('_afterEdgeChange for ' + edgeLenArray);
+			Y.log('_afterEdgeChange for ' + edgeLenArray);
 			return;
 		}
 		Y.log('_afterEdgeChange for ' + this.name + ' edgeLenArray = [' + edgeLenArray[0] + ', '+ edgeLenArray[1] + ', '+ edgeLenArray[2] + ', '+ edgeLenArray[3] + ', '+ edgeLenArray[4] + ']');
@@ -110,7 +110,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 			this._standardForm[i] = this._calculatedValues[this._calcIndexToStd[i]];
 		}
 		//Y.log('probs =  [' + this._standardForm[0] + ', '+ this._standardForm[1] + ', '+ this._standardForm[2] + ', '+ this._standardForm[3] + ', ...');
-		//Y.log('   ' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
+		//Y.log('	' + this._standardForm[4] + ', '+ this._standardForm[5] + ', '+ this._standardForm[6] + ', '+ this._standardForm[7] + ']');
 		
 		this.set('value', this._standardForm);
 	},
@@ -134,7 +134,7 @@ Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 			s += v;
 		}
 		return (Math.abs(1.0 - s) < 1e-6);
-  }	
+  } 
 }, {
 	NAME :	"fourLeafTreeCalculator", // required for Widget classes and used as event prefix
 	ATTRS : {

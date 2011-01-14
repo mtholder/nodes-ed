@@ -245,10 +245,6 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
 				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
 			}
-			else {
-				//Y.log('prev was ' + nodeV + ' not changing');
-				
-			}
 			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.valueMin);
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
