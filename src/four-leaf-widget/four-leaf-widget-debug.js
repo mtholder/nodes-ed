@@ -330,6 +330,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 
 YUI.add('four-leaf-tree-widget', function(Y) { //AUTOMATICALLY-PRUNE
 
+
 function FourLeafTreeWidget(config) {
 	FourLeafTreeWidget.superclass.constructor.apply(this, arguments);
 }
@@ -339,7 +340,7 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		// identifies the classname applied to the value field
 		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('joinedInputSlider') + '-group"',
 		CANVAS_NODE_DIV_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('FourLeafTreeCanvas') + '-div"',
-		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label"',
+		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label" />',
 		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
 		
 		initializer: function(config) {
@@ -414,7 +415,10 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			}
 
 			if (this._validateValue(v)) {
-				this._uiSetValue(v);
+    			for (i = 0; i < this.inputArray.length; ++i) {
+	    			inp = this.inputArray[i];
+	    			inp.set('value', v[i]);
+	    		}
 			}
 		},
 		
@@ -572,7 +576,7 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		color : { value : null }
 		}
 	
-});
 
+}); // close Y.add
 
 }, '@VERSION@' ,{requires:['widget', 'console', 'joined-input-slider', 'node']}); //AUTOMATICALLY-PRUNE
