@@ -67,9 +67,17 @@ Release-mode includes -->
 
 <div id="bd" role="main">
 	<div class="yui-g">
+		<div class="yui-u first">
+			<div id="dataMatrix"></div>
+		</div>
+		<div class="yui-u">
+			<div id="likeTrace"></div>
+		</div>
+	</div>
+	<div class="yui-g">
 			<div class="yui-u first">
 				  <header>
-					<h2>Pattern probabilities</h2>
+					<h2>Pattern probabilities (taxa order: ABCD)</h2>
 				  </header>
 				  <div id="patProbs"></div>
 			</div>
@@ -113,6 +121,7 @@ if (DEBUGGING) {
 }
 
 
+	
 
 	var treeNameArray = ['AB', 'AC', 'AD'], 
 		i,
@@ -120,7 +129,8 @@ if (DEBUGGING) {
 		treeWidgets = [],
 		flc,
 		calcArray = [],
-		colorArray = [];
+		colorArray = [],
+		treeCalcOffset = 0;
 
 	for (i = 0; i < treeNameArray.length; ++i) {
 		treeName = treeNameArray[i];
@@ -133,10 +143,11 @@ if (DEBUGGING) {
 		flc = new Y.FourLeafTreeCalculator({name : treeName, 
 								topoIndex : i, 
 								edgeLenContainer : flw});
-		calcArray[i] = flc;
+		calcArray[treeCalcOffset + i] = flc;
 		treeWidgets[i] = flw;
 		colorArray[i] = flw.get('color');
 	}
+	
 	ppPanelDiv = Y.one('#patProbs');
 	ppPanel = new Y.GroupedHistogram({
 						groups : calcArray, 
@@ -199,8 +210,7 @@ if (DEBUGGING) {
 										container : container,
 										toControl : thediv,
 										callback : function (v) {
-												ppPanel.showGroup[0] = v;
-												Y.log('ppPanel.showGroup[0] = ' + v);
+												ppPanel.showGroup[treeCalcOffset + 0] = v;
 												ppPanel._paint();
 											}
 										});
@@ -210,7 +220,7 @@ if (DEBUGGING) {
 										 container :  container,
 										 toControl :  thediv,
 										 callback : function (v) {
-												ppPanel.showGroup[1] = v;
+												ppPanel.showGroup[treeCalcOffset + 1] = v;
 												ppPanel._paint();
 											}
 										 });
@@ -220,7 +230,7 @@ if (DEBUGGING) {
 										container :	 container,
 										toControl : thediv,
 										callback : function (v) {
-												ppPanel.showGroup[2] = v;
+												ppPanel.showGroup[treeCalcOffset + 2] = v;
 												ppPanel._paint();
 											}
 
