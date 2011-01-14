@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>test-simple.html</title>
+<!--begin custom header content for this example-->
+
+<style type="text/css">
+#testLogger {
+	margin-bottom: 1em;
+}
+
+#testLogger .yui3-console .yui3-console-title {
+	border: 0 none;
+	color: #000;
+	font-size: 13px;
+	font-weight: bold;
+	margin: 0;
+	text-transform: none;
+}
+#testLogger .yui3-console .yui3-console-entry-meta {
+	margin: 0;
+}
+
+.yui3-skin-sam .yui3-console-entry-pass .yui3-console-entry-cat {
+	background: #070;
+	color: #fff;
+}
+</style>
+<link rel="stylesheet" href="../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../src/js/util.js"></script>
+<script type="text/javascript" src="../src/joined-input-slider/joined-input-slider-debug.js"></script>
+
+
+<!--end custom header content for this example-->
+
+</head>
+
+<body class="yui3-skin-sam	yui-skin-sam">
+
+<h1>Simple Testing Example</h1>
+
+<div id="example"></div>
+
+<!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
+
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI({ filter: 'raw' }).use(	'event',
+							"node", 
+							"node-event-simulate",
+							"console", "test", "joined-input-slider", function (Y) {
+
+	Y.namespace("example.test");
+
+	Y.example.test.SliderTestCase = new Y.Test.Case({
+
+		//name of the test case - if not provided, one is auto-generated
+		name : "Slider Tests",
+
+		//---------------------------------------------------------------------
+		// setUp and tearDown methods - optional
+		//---------------------------------------------------------------------
+
+		/*
+		 * Sets up data that is needed by each test.
+		 */
+		setUp : function () {
+			this.minor = 0.0001;
+			this.major = 0.001;
+			this.par = Y.one('#example');
+		},
+
+		/*
+		 * Cleans up everything that was created by setUp().
+		 */
+		tearDown : function () {
+		},
+
+		generateSlider : function(v) {
+			return new Y.JoinedInputSlider({
+						value : v,
+						max : 0.5,
+						min : 0.0,
+						minorStep : this.minor,
+						majorStep : this.major
+					});
+		},
+
+		//---------------------------------------------------------------------
+		// Test methods - names must begin with "test"
+		//---------------------------------------------------------------------
+
+		testCreate : function () {
+			var Assert = Y.Assert;
+			var inp = this.generateSlider(0.25);
+			Assert.isObject(inp);
+			Assert.areEqual(0.25, inp.get('value'));
+		},
+
+		testSet : function () {
+			var Assert = Y.Assert;
+			var inp = this.generateSlider(0.25);
+			Assert.isObject(inp);
+			Assert.areEqual(1/4, inp.get('value'));
+			inp.set('value', 0.35);
+			Assert.areEqual(0.35, inp.get('value'));
+		},
+		
+		testOutOfBounds : function () {
+			var Assert = Y.Assert;
+			var inp = this.generateSlider(0.25);
+			Assert.isObject(inp);
+			Assert.areEqual(1/4, inp.get('value'));
+			inp.set('value', 1.35);
+			Assert.areEqual(0.25, inp.get('value'));
+		},
+		
+
+		testUpDown : function () {
+			var Assert = Y.Assert;
+			var inp = this.generateSlider(0.25);
+			inp.render(this.par);
+			var eventSimulator = inp.get('contentBox');
+			Assert.isObject(inp);
+			Assert.areEqual(1/4, inp.get('value'));
+			if (Y.UA.gecko) {
+				return;
+			}
+			keyEventSpec = (!Y.UA.opera) ? "down" : "press";
+			var s = 'key' + keyEventSpec;
+			eventSimulator.simulate(s, { charCode : 38 } );
+			var waitTime = 50;
+			this.wait(function() {
+				Assert.areEqual(0.25 + this.minor, inp.get('value'));
+				eventSimulator.simulate(s, { charCode : 40 } );
+				this.wait(function() {
+					Assert.areEqual(0.25, inp.get('value'));
+					eventSimulator.simulate(s, { charCode : 33 } );
+					this.wait(function() {
+						Assert.areEqual(0.25 + this.major, inp.get('value'));
+						eventSimulator.simulate(s, { charCode : 34 } );
+						this.wait(function() {
+							Assert.areEqual(0.25, inp.get('value')); 
+						}, waitTime);
+					}, waitTime);
+				}, waitTime);
+			}, waitTime);
+		}
+	});
+
+	Y.example.test.ExampleSuite = new Y.Test.Suite("Joined Input Slider");
+	Y.example.test.ExampleSuite.add(Y.example.test.SliderTestCase);
+
+	//create the console
+	var r = new Y.Console({
+		newestOnTop : false,
+		style : 'block' // to anchor in the example content
+	});
+
+	r.render('#testLogger');
+
+	Y.Test.Runner.add(Y.example.test.ExampleSuite);
+
+	//run the tests
+	Y.Test.Runner.run();
+
+});
+</script>
+</body>
+</html>
