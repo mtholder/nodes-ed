@@ -159,22 +159,29 @@ if (DEBUGGING) {
 	}
 	
 	var Button = Y.YUI2.widget.Button;
-	var createShowHide = function (label, idtag, container, toControl) {
-		var b = new Button({
+	var createShowHide = function (config) {
+		var b, 
+			toControl = config.toControl,
+			f = config.callback;
+		b = new Button({
 					type: "checkbox",
-					label: label,
-					id: "checkbutton" + idtag,
-					name: "checkbox" + idtag,
+					label: config.label,
+					id: "checkbutton" + config.idtag,
+					name: "checkbox" + config.idtag,
 					value: "1", 
-					container: container, 
+					container: config.container, 
 					onclick : {fn : function (e) {
-									e.target.checked = ! e.target.checked;
 									if (e.target.checked) {
-										toControl.hide();
-									}
-									else {
 										toControl.show();
 									}
+									else {
+										toControl.hide();
+									}
+									if (f) {
+										f(e.target.checked);
+									}
+									e.target.checked = ! e.target.checked;
+									
 								}
 							},
 					checked : true
@@ -182,11 +189,42 @@ if (DEBUGGING) {
 		return b;
 	}
 	var container = 'panelbrowser';
-	var oCheckButton9 = createShowHide("Pattern Probs", 'patprob', container, ppPanelDiv);
-	var abdiv = Y.one('#treeABDiv');
-    var oCheckButton10 = createShowHide("AB | CD", 'ab', container, abdiv);
-    var oCheckButton10 = createShowHide("AC | BD", 'ac', container, Y.one('#treeACDiv'));
-    var oCheckButton10 = createShowHide("AD | BC", 'ad', container, Y.one('#treeADDiv'));
+	var oCheckButton9 = createShowHide({label : "Pattern Probs",
+										idtag : 'patprob',
+										container : container,
+										toControl : ppPanelDiv});
+	var thediv = Y.one('#treeABDiv');
+	var oCheckButton10 = createShowHide({label :	"AB | CD",
+										idtag : 'ab', 
+										container : container,
+										toControl : thediv,
+										callback : function (v) {
+												ppPanel.showGroup[0] = v;
+												Y.log('ppPanel.showGroup[0] = ' + v);
+												ppPanel._paint();
+											}
+										});
+	thediv = Y.one('#treeACDiv');
+	var oCheckButton11 = createShowHide({label : "AC | BD",
+										 idtag : 'ac',
+										 container :  container,
+										 toControl :  thediv,
+										 callback : function (v) {
+												ppPanel.showGroup[1] = v;
+												ppPanel._paint();
+											}
+										 });
+	thediv = Y.one('#treeADDiv');
+	var oCheckButton12 = createShowHide({label : "AD | BC",
+										idtag : 'ad',
+										container :	 container,
+										toControl : thediv,
+										callback : function (v) {
+												ppPanel.showGroup[2] = v;
+												ppPanel._paint();
+											}
+
+										})
 	
 	
 	return;

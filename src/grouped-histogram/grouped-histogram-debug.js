@@ -26,6 +26,7 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 			this.rescaled = [];
 			this.groupsValueArray = [];
 			this.minMaxPerRow = [];
+			this.showGroup = []
 			for (i = 0; i < this.groupsArray.length; ++i) {
 				this.groupColors[i] = '#000';
 				try {
@@ -41,6 +42,7 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 				else {
 					this.groupsValueArray[i] = [];
 				}
+				this.showGroup[i] = true;
 			}
 			
 			this.canvasWidth = null;
@@ -214,9 +216,11 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 					}
 					currWidthOffset = widthOffset;
 					for (j = 0; j < g.length; ++j) {
-						Y.log('this.canvasContext.fillRect(g[j] = ' + g[j] +  ');');
-						this.canvasContext.fillRect(heightOffset, currWidthOffset, g[j]*this.barLengthScaler, this.barWidth);
-						currWidthOffset += groupWidthOffset;
+						if (this.showGroup[i]) {
+						    Y.log('this.canvasContext.fillRect(g[j] = ' + g[j] +  ');');
+    						this.canvasContext.fillRect(heightOffset, currWidthOffset, g[j]*this.barLengthScaler, this.barWidth);
+    					}
+	    				currWidthOffset += groupWidthOffset;
 					}
 				}
 				widthOffset += this.barWidth;
