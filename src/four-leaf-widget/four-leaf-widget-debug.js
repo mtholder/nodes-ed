@@ -415,10 +415,10 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			}
 
 			if (this._validateValue(v)) {
-    			for (i = 0; i < this.inputArray.length; ++i) {
-	    			inp = this.inputArray[i];
-	    			inp.set('value', v[i]);
-	    		}
+				for (i = 0; i < this.inputArray.length; ++i) {
+					inp = this.inputArray[i];
+					inp.set('value', v[i]);
+				}
 			}
 		},
 		

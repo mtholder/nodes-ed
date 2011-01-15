@@ -48,10 +48,7 @@
 
 <div id="testLogger"></div>
 <script type="text/javascript">
-YUI({ filter: 'raw' }).use(	'event',
-							"node", 
-							"node-event-simulate",
-							"console", "test", 
+YUI({ filter: 'raw' }).use(	"console", "test", 
 							"joined-input-slider",
 							'four-leaf-tree-canvas',
 							'four-leaf-tree-widget', function (Y) {
@@ -129,48 +126,7 @@ YUI({ filter: 'raw' }).use(	'event',
 			valid[1] = nv;
 			Y.ArrayAssert.itemsAreEqual(valid, inp.get('value'));
 		},
-		
-/*		testOutOfBounds : function () {
-			var Assert = Y.Assert;
-			var inp = this.generateSlider(0.25);
-			Assert.isObject(inp);
-			Assert.areEqual(1/4, inp.get('value'));
-			inp.set('value', 1.35);
-			Assert.areEqual(0.25, inp.get('value'));
-		},
-		
 
-		testUpDown : function () {
-			var Assert = Y.Assert;
-			var inp = this.generateSlider(0.25);
-			inp.render(this.par);
-			var eventSimulator = inp.get('contentBox');
-			Assert.isObject(inp);
-			Assert.areEqual(1/4, inp.get('value'));
-			if (Y.UA.gecko) {
-				return;
-			}
-			keyEventSpec = (!Y.UA.opera) ? "down" : "press";
-			var s = 'key' + keyEventSpec;
-			eventSimulator.simulate(s, { charCode : 38 } );
-			var waitTime = 50;
-			this.wait(function() {
-				Assert.areEqual(0.25 + this.minor, inp.get('value'));
-				eventSimulator.simulate(s, { charCode : 40 } );
-				this.wait(function() {
-					Assert.areEqual(0.25, inp.get('value'));
-					eventSimulator.simulate(s, { charCode : 33 } );
-					this.wait(function() {
-						Assert.areEqual(0.25 + this.major, inp.get('value'));
-						eventSimulator.simulate(s, { charCode : 34 } );
-						this.wait(function() {
-							Assert.areEqual(0.25, inp.get('value')); 
-						}, waitTime);
-					}, waitTime);
-				}, waitTime);
-			}, waitTime);
-		}
-*/
 	});
 	Y.example.test.ExampleSuite = new Y.Test.Suite("Four Leaf Tree Widget");
 	Y.example.test.ExampleSuite.add(Y.example.test.FourLeafTreeWidgetTestCase);

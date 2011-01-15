@@ -1,6 +1,7 @@
 DIRS = four-leaf-widget \
 	four-leaf-tree-calculator \
 	grouped-histogram \
+	input-groups \
 	joined-input-slider 
 
 .PHONY: all clean $(DIRS) installexamples

@@ -34,6 +34,7 @@ Release-mode includes -->
 <script type="text/javascript" src="../../src/four-leaf-widget/four-leaf-widget-debug.js"></script>
 <script type="text/javascript" src="../../src/four-leaf-tree-calculator/four-leaf-tree-calculator-debug.js"></script>
 <script type="text/javascript" src="../../src/grouped-histogram/grouped-histogram-debug.js"></script>
+<script type="text/javascript" src="../../src/input-groups/input-groups-debug.js"></script>
 <!-- end-Debug-mode includes -->
 
 <style type="text/css">
@@ -68,7 +69,9 @@ Release-mode includes -->
 <div id="bd" role="main">
 	<div class="yui-g">
 		<div class="yui-u first">
-			<div id="dataMatrix"></div>
+			<div id="dataMatrix">
+				<p>Data pattern counts:</p>
+			</div>
 		</div>
 		<div class="yui-u">
 			<div id="likeTrace"></div>
@@ -113,6 +116,7 @@ YUI({debug : DEBUGGING}).use('event-key',
 							 'grouped-histogram',
 							 'node-event-simulate',
 							 'yui2-button',
+							 'input-groups',
 							 function(Y) {
 
 // load a console in debug mode, so we see the Y.log messages
@@ -130,7 +134,22 @@ if (DEBUGGING) {
 		flc,
 		calcArray = [],
 		colorArray = [],
-		treeCalcOffset = 0;
+		treeCalcOffset = 0,
+		ppPanelDiv, dataMatrixDiv, traceDiv, vig,
+		categoryLabels =  ["0000",
+						  "0001",
+						  "0010",
+						  "0011",
+						  "0100",
+						  "0101",
+						  "0110",
+						  "0111"];
+		
+	dataMatrixDiv = Y.one('#dataMatrix')
+	vig = new Y.InputGroups({labels : categoryLabels});
+	vig.render(dataMatrixDiv);
+	
+	
 
 	for (i = 0; i < treeNameArray.length; ++i) {
 		treeName = treeNameArray[i];
@@ -152,14 +171,7 @@ if (DEBUGGING) {
 	ppPanel = new Y.GroupedHistogram({
 						groups : calcArray, 
 						colorArray : colorArray,
-						categoryLabels : ["0000",
-										  "0001",
-										  "0010",
-										  "0011",
-										  "0100",
-										  "0101",
-										  "0110",
-										  "0111"]});
+						categoryLabels : categoryLabels});
 	ppPanel.render(ppPanelDiv);
 	
 	for (i = 0; i < treeWidgets.length; ++i) {

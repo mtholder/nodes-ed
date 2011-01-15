@@ -3,6 +3,10 @@ import sys, os, shutil
 if len(sys.argv) < 2:
     sys.exit('Expecting a component name as the argument (followed by any YUI module requirements)')
 dashed_name = sys.argv[1]
+if (dashed_name.lower() == '-h') or (dashed_name.lower() == '--help'):
+    sys.stdout.write("expecting at least one argument:\n  component_name [requirement_1 [requirement_2 [...]]]\n")
+    sys.exit(0)
+
 requirements = sys.argv[2:]
 
 fn = dashed_name
