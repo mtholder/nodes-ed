@@ -1,21 +1,18 @@
 YUI.add('joined-input-slider', function(Y) { //AUTOMATICALLY-PRUNE
 
-
-
 //Y.log("starting to declare JoinedInputSlider");
 // ctor...
-function JoinedInputSlider(config) { 
-	JoinedInputSlider.superclass.constructor.apply(this, arguments);
+function ConstrainedNumericInput(config) { 
+	ConstrainedNumericInput.superclass.constructor.apply(this, arguments);
 }
 
 
-Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
+Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		// identifies the classname applied to the value field
-		INPUT_CLASS : Y.ClassNameManager.getClassName('joinedInputSlider', "value"),
+		INPUT_CLASS : Y.ClassNameManager.getClassName('constrainedNumericInput', "value"),
 		
-		// used to create JoinedInputSlider DOM elements 
-		INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName('joinedInputSlider', "value") + '">',
-		SLIDER_TEMPLATE : '<span class="horiz_slider"></span>',
+		// used to create ConstrainedNumericInput DOM elements 
+		INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName('constrainedNumericInput', "value") + '">',
 		
 		// Used to configure widget frome the value html attribute on the markup on the page
 		HTML_PARSER : {
@@ -26,47 +23,34 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			}
 		},
 		initializer: function(config) {
+		    this._inputInitialize(config);
+		},
+		
+		_inputInitialize : function(config) {		
 			//NdEjs.logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
-
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
 			this._uiInvalid = false;
 			this.valueMax = this.get('max'); 
 			this.valueMin = this.get('min');
 			if (NdEjs.isNone(this.valueMax) || NdEjs.isNone(this.valueMin) || (this.valueMax < this.valueMin)) {
-				throw {name : 'Error' , message : 'JoinedInputSlider max must be >= min'};
+				throw {name : 'Error' , message : 'ConstrainedNumericInput max must be >= min'};
 			}
-			this.valueRange = this.valueMax - this.valueMin;
-			this.slider2InputDenom = 10000;
-			this.sliderMin = 0.0;
-			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
-			// Create a horizontal Slider using all defaults
-			var configVi = this.get('value'),
-				valueInitial;
-			valueInitial = (!configVi ? this.valueMin + 0.1*this.valueRange : configVi);
-			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.valueMin);
-			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
-				this.set('sliderLength', 200);
-			}
-			this.sliderBinSize = 1/this.get('sliderLength');
-			if (valueInitial != configVi) {
-				this.set('value', valueInitial);
-			}
-
 		},
 
 		destructor : function() {
 			//Y.log('in destructor');
 			this.inputNode = null;
-			this.slider = null;
 		},
 
 		renderUI : function() {
 			//Y.log('in renderUI');
-			this._renderSlider();
 			this._renderInput();
 		},
 
 		bindUI : function() {
+		    this._bindInputUI();
+		},
+		_bindInputUI : function() {
 			//Y.log('in bindUI');
 			this.after("valueChange", this._afterValueChange);
 			var boundingBox = this.get("boundingBox"), 
@@ -78,10 +62,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 
 			Y.on("key", Y.bind(this._onDirectionKey, this), boundingBox, keyEventSpec);
 			Y.on("change", Y.bind(this._onInputChange, this), this.inputNode);
-			this.slider.after( "valueChange", Y.bind(this._afterSliderChange, this), boundingBox );
 			Y.on("keyup", Y.bind(this._onKeyUp, this), boundingBox );
-
-
 		},
 
 		syncUI : function() {
@@ -104,31 +85,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 
 			input.set("title", strings.tooltip);
 			this.inputNode = input;
-			this.inputNode.setData( { slider: this.slider} );
-
 		},
-
-		_renderSlider : function() {
-			//Y.log('in renderSlider');
-			var contentBox = this.get("contentBox"),
-				strings,
-				inc;
-			strings = this.get("strings");
-
-			inc = this._createSlider(strings.slider, this.getClassName("horiz_slider"));
-			this.sliderNode = contentBox.appendChild(inc);
-			// Render the Slider next to the input
-			this.slider.render(inc);
-		  },
-
-		_createSlider : function(text, className) {
-			var btn = Y.Node.create(this.SLIDER_TEMPLATE);
-			//btn.set("innerHTML", text);
-			btn.set("title", text);
-			btn.addClass(className);
-			this.slider = new Y.Slider({value : this.sliderInitial, max : this.sliderMax, length : this.get('sliderLength')});
-			return btn;
-		 },
 
 		_defaultCB : function() {
 			return null;
@@ -200,11 +157,135 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 					return;
 			}
 			//Y.log('in _onKeyUp not a DirectionKey');
-			//NdEjs.logObjectData(e, Y.log, {prefix: 'event'});
 			
 			this._onInputChange(e);
 
 		},
+
+		// updates the input box when the value changes.  
+		// The e.newVal has already been checked by _validateValue, 
+		// so it should be good (I think).
+		_afterValueChange : function(e) {
+			//Y.log('in _afterValueChange');
+			if (this._uiInvalid) {
+				this.inputNode.setStyle("color", "black");
+				this._uiInvalid = false;
+			}
+			this._uiSetValue(e.newVal);
+		},
+
+		// Updates the input box and slider to reflect val
+		_uiSetValue : function(val) {
+		    this._inputUISetValue(val);
+		},
+		_inputUISetValue : function(val) {
+			var nodeV = this.inputNode.get("value"),
+				nVal = +val,
+				nNodeV,
+				sliderValue;
+			nNodeV = +nodeV;
+			//Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
+			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
+				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
+			}
+		},
+
+		// returns true if the value is valid
+		_validateValue: function(val) {
+			var min = this.get("min"), 
+				max = this.get("max");
+			return (Y.Lang.isNumber(+val)) && (+val >= +min) && (+val <= +max);
+	  }
+	}, {
+	NAME :	"constrainedNumericInput", // required for Widget classes and used as event prefix
+
+	ATTRS : {
+		min :	{ value : 0 },
+		max :	{ value : 100},
+		value : { value : null,
+				  validator : function(val) {
+						return this._validateValue(val);
+					}
+				},
+		minorStep : { value : 1},
+		majorStep : { value : 10},
+		}
+	
+});
+
+
+
+//Y.log("starting to declare JoinedInputSlider");
+// ctor...
+function JoinedInputSlider(config) { 
+	JoinedInputSlider.superclass.constructor.apply(this, arguments);
+}
+
+
+Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
+		SLIDER_TEMPLATE : '<span class="horiz_slider"></span>',
+
+		initializer: function(config) {
+            this._inputInitialize(config);
+            this.valueRange = this.valueMax - this.valueMin;
+			this.slider2InputDenom = 10000;
+			this.sliderMin = 0.0;
+			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
+			// Create a horizontal Slider using all defaults
+			var configVi = this.get('value'),
+				valueInitial;
+			valueInitial = (!configVi ? this.valueMin + 0.1*this.valueRange : configVi);
+			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.valueMin);
+			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
+				this.set('sliderLength', 200);
+			}
+			this.sliderBinSize = 1/this.get('sliderLength');
+			if (valueInitial != configVi) {
+				this.set('value', valueInitial);
+			}
+
+		},
+
+		destructor : function() {
+			//Y.log('in destructor');
+			this.inputNode = null;
+			this.slider = null;
+		},
+
+		renderUI : function() {
+			//Y.log('in renderUI');
+			this._renderSlider();
+			this._renderInput();
+		},
+
+		bindUI : function() {
+            var boundingBox = this.get("boundingBox");
+		    this._bindInputUI();
+		    this.slider.after( "valueChange", Y.bind(this._afterSliderChange, this), boundingBox );
+        },
+
+		_renderSlider : function() {
+			//Y.log('in renderSlider');
+			var contentBox = this.get("contentBox"),
+				strings,
+				inc;
+			strings = this.get("strings");
+
+			inc = this._createSlider(strings.slider, this.getClassName("horiz_slider"));
+			this.sliderNode = contentBox.appendChild(inc);
+			// Render the Slider next to the input
+			this.slider.render(inc);
+		},
+
+		_createSlider : function(text, className) {
+			var btn = Y.Node.create(this.SLIDER_TEMPLATE);
+			//btn.set("innerHTML", text);
+			btn.set("title", text);
+			btn.addClass(className);
+			this.slider = new Y.Slider({value : this.sliderInitial, max : this.sliderMax, length : this.get('sliderLength')});
+			return btn;
+		},
+
 		// If the slider has moved enough to change the value substantially, then
 		//	we update `this` which is the input.  We make sure the change is at least
 		//	sliderBinSize because, setting the input triggers the slider to move 
@@ -222,29 +303,11 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 			}
 		},
 
-		// updates the input box when the value changes.  
-		// The e.newVal has already been checked by _validateValue, 
-		// so it should be good (I think).
-		_afterValueChange : function(e) {
-			//Y.log('in _afterValueChange');
-			if (this._uiInvalid) {
-				this.inputNode.setStyle("color", "black");
-				this._uiInvalid = false;
-			}
-			this._uiSetValue(e.newVal);
-		},
-
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
-			var nodeV = this.inputNode.get("value"),
-				nVal = +val,
-				nNodeV,
-				sliderValue;
-			nNodeV = +nodeV;
-			//Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
-			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
-				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
-			}
+		    var nVal = +val;
+				
+		    this._inputUISetValue(val);
 			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.valueMin);
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
@@ -255,13 +318,6 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, Y.Widget, {
 				this.set( "value", sliderValue );
 			});
 		},
-
-		// returns true if the value is valid
-		_validateValue: function(val) {
-			var min = this.get("min"), 
-				max = this.get("max");
-			return (Y.Lang.isNumber(+val)) && (+val >= +min) && (+val <= +max);
-	  }
 	}, {
 	NAME :	"joinedInputSlider", // required for Widget classes and used as event prefix
 
