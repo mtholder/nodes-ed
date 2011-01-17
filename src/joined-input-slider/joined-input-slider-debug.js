@@ -66,7 +66,7 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
                     }
 			    }
 			}
-			
+			this.valueChangeThreshold = 1e-9;
 		},
 
 		destructor : function() {
@@ -223,7 +223,7 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 				sliderValue;
 			nNodeV = +nodeV;
 			//Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
-			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > 1e-9) {
+			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > this.valueChangeThreshold) {
 				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
 			}
 		},
@@ -269,23 +269,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 
 		initializer: function(config) {
             this._inputInitialize(config);
-            this.valueRange = this.get('max') - this.get('min');
-			this.slider2InputDenom = 10000;
-			this.sliderMin = 0.0;
-			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
-			// Create a horizontal Slider using all defaults
-			var configVi = this.get('value'),
-				valueInitial;
-			valueInitial = (!configVi ? this.get('min') + 0.1*this.valueRange : configVi);
-			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.get('min'));
-			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
-				this.set('sliderLength', 200);
-			}
-			this.sliderBinSize = 1/this.get('sliderLength');
-			if (valueInitial != configVi) {
-				this.set('value', valueInitial);
-			}
-
+            this._afterRangeChange();
 		},
 
 		destructor : function() {
@@ -304,6 +288,10 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
             var boundingBox = this.get("boundingBox");
 		    this._bindInputUI();
 		    this.slider.after( "valueChange", Y.bind(this._afterSliderChange, this), boundingBox );
+		    this.after("maxChange", Y.bind(this._afterRangeChange, this), boundingBox );
+		    this.after("minChange", Y.bind(this._afterRangeChange, this), boundingBox );
+		    this.after( "sliderLengthChange", Y.bind(this._afterRangeChange, this), boundingBox );
+		    
         },
 
 		_renderSlider : function() {
@@ -324,10 +312,32 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			//btn.set("innerHTML", text);
 			btn.set("title", text);
 			btn.addClass(className);
-			this.slider = new Y.Slider({value : this.sliderInitial, max : this.sliderMax, length : this.get('sliderLength')});
+			this.slider = new Y.Slider({value : this.sliderCurrent, max : this.sliderMax, length : this.get('sliderLength')});
 			return btn;
 		},
-
+        _afterRangeChange : function() {
+            Y.log('_afterRangeChange max=' + this.get('max') + ' min=' + this.get('min'));
+            
+            this.valueRange = this.get('max') - this.get('min');
+			this.valueChangeThreshold = this.valueRange/this.get('sliderLength');
+            this.slider2InputDenom = 10000;
+			this.sliderMin = 0.0;
+			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
+			// Create a horizontal Slider using all defaults
+			var configVi = this.get('value'),
+				valueInitial;
+			valueInitial = (!configVi ? this.get('min') + 0.1*this.valueRange : configVi);
+			this.sliderCurrent = this.sliderMin + this.slider2InputDenom*(valueInitial - this.get('min'));
+			if (this.slider) {
+			    this.slider.set('value', this.sliderCurrent);
+			    this.slider.set('max', this.sliderMax);
+			    this.slider.set('length', this.sliderLength);
+			}
+			this.sliderBinSize = 1/this.get('sliderLength');
+			if (valueInitial != configVi) {
+				this.set('value', valueInitial);
+			}
+        },
 		// If the slider has moved enough to change the value substantially, then
 		//	we update `this` which is the input.  We make sure the change is at least
 		//	sliderBinSize because, setting the input triggers the slider to move 
@@ -336,8 +346,8 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			//Y.log('in _afterSliderChange');
 			var oldValue  = parseFloat(this.get("value")), 
 				nv = this.get('min') + ((e.newVal - this.sliderMin)/this.slider2InputDenom);
-			//Y.log('this._afterSliderChange with e.newVal=' + e.newVal + '	 oldValue=' + oldValue + '	nv='+nv);
-			if (Math.abs(oldValue - nv) > this.sliderBinSize/2) {
+			Y.log('this._afterSliderChange with e.newVal=' + e.newVal + '	 oldValue=' + oldValue + '	nv='+nv);
+			if (Math.abs(oldValue - nv) > this.valueChangeThreshold) {
 				if (nv <= this.get('max') && nv >= this.get('min')) {
 					this.inputNode.setStyle('color', 'black');
 				}
@@ -354,11 +364,13 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
 			}
-				// Update the Slider on a delay to allow time for typing
-			this.slider.wait = Y.later( 20, this.slider, function () {
-				this.wait = null;
-				this.set( "value", sliderValue );
-			});
+			if (Math.abs(sliderValue - this.slider.get('value')) > this.sliderBinSize) {
+                    // Update the Slider on a delay to allow time for typing
+                this.slider.wait = Y.later( 20, this.slider, function () {
+                        this.wait = null;
+                        this.set( "value", sliderValue );
+                    });
+            }
 		},
 	}, {
 	NAME :	"joinedInputSlider", // required for Widget classes and used as event prefix
