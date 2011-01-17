@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>test-simple.html</title>
+<!--begin custom header content for this example-->
+<link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/joined-input-slider/joined-input-slider-debug.js"></script>
+</head>
+<body class="yui3-skin-sam	yui-skin-sam">
+<h1>Constrained-Numeric-Input programmatic</h1>
+<div id="example">
+    <label>Default [0, 100]; minorStep=1, 0.02=10;</label><input id="defnum" class="yui3-constrained-numeric-input-loading" value="19" /><br/>
+    <label>Constructor setting properties [0.2, 0.25]; minorStep=0.005, majorStep=0.02;</label>
+    <input id="altered" class="yui3-constrained-numeric-input-loading" min="0.2" max="0.25" minorStep="0.005" majorStep="0.02" value="0.22"  /><br/>
+    <label>Constructor setting properties [0.2, 0.25]; minorStep=0.005, majorStep=0.02, but setting max = 2</label>
+    <input id="altmod" class="yui3-constrained-numeric-input-loading" min="0.2" max="0.25" minorStep="0.005" majorStep="0.02" value="0.22"  /><br/>
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI().use(	'event',
+                            'event-focus', 
+							"node", 
+							"console",
+							"joined-input-slider", function (Y) {
+    // preamble
+    new Y.Console({height : 900}).render();						
+
+    var first = new Y.ConstrainedNumericInput( {srcNode : '#defnum' });
+    first.render();
+    var second = new Y.ConstrainedNumericInput( {srcNode : '#altered' });
+    second.render();
+    var third = new Y.ConstrainedNumericInput( {srcNode : '#altmod' });
+    third.set('max', 2);
+    third.render();
+});
+
+</script>
+</body>
+</html>

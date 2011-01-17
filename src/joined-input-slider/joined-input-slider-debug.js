@@ -13,14 +13,30 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		
 		// used to create ConstrainedNumericInput DOM elements 
 		INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName('constrainedNumericInput', "value") + '">',
-		
+		SETTABLE_ATTRS : ['value', 'max', 'min', 'majorStep', 'minorStep'],
 		// Used to configure widget frome the value html attribute on the markup on the page
 		HTML_PARSER : {
 			value: function (srcNode) {
 				var val = +srcNode.get("value"); 
-				//Y.log("In HTML_PARSER val= " + val); 
 				return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
-			}
+			},
+			max: function (srcNode) {
+				var val = +srcNode.getAttribute("max"); 
+				return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
+			},
+			min: function (srcNode) {
+				var val = +srcNode.getAttribute("min"); 
+				return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
+			},
+			minorStep: function (srcNode) {
+				var val = +srcNode.getAttribute("minorStep"); 
+				return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
+			},
+			majorStep: function (srcNode) {
+				var val = +srcNode.getAttribute("majorStep"); 
+				return ((Y.Lang.isNumber(+val) && val === val) ? val : null);
+			},
+			
 		},
 		initializer: function(config) {
 		    this._inputInitialize(config);
@@ -29,12 +45,28 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		_inputInitialize : function(config) {		
 			//NdEjs.logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
+			var s, valueMax, valueMin, v, i, f;
+			this.inputNode = null;
 			this._uiInvalid = false;
-			this.valueMax = this.get('max'); 
-			this.valueMin = this.get('min');
-			if (NdEjs.isNone(this.valueMax) || NdEjs.isNone(this.valueMin) || (this.valueMax < this.valueMin)) {
+			valueMax = this.get('max'); 
+			valueMin = this.get('min');
+			if (NdEjs.isNone(valueMax) || NdEjs.isNone(valueMin) || (valueMax < valueMin)) {
 				throw {name : 'Error' , message : 'ConstrainedNumericInput max must be >= min'};
 			}
+			s = config && config.srcNode;
+			if (s !== null && s !== undefined) {
+			    this.inputNode = Y.one(s);
+			    Y.log('inputNode grabbed')
+			    if (this.inputNode !== null) {
+                    for (i = 0; i < this.SETTABLE_ATTRS.length; ++i) {
+                        s = this.SETTABLE_ATTRS[i]
+                        v = this.HTML_PARSER[s](this.inputNode);
+                        Y.log(s + ' is ' + v)
+                        this.set(s, v);
+                    }
+			    }
+			}
+			
 		},
 
 		destructor : function() {
@@ -75,16 +107,22 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		_renderInput : function() {
 			//Y.log('in renderInput');
 			var contentBox = this.get("contentBox"),
-				input = contentBox.one("." + this.INPUT_CLASS),
-				strings = this.get("strings");
+				input = this.inputNode,
+				strings = this.get("strings"),
+				v = null;
 
 			if (!input) {
 				input = Y.Node.create(this.INPUT_TEMPLATE);
-				contentBox.appendChild(input);
 			}
-
+			else {
+			    v = input.get('value');
+            }		
+            contentBox.appendChild(input);
 			input.set("title", strings.tooltip);
 			this.inputNode = input;
+			if (v !== null) {
+			    this.set('value', v);
+			}
 		},
 
 		_defaultCB : function() {
@@ -209,6 +247,10 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 				},
 		minorStep : { value : 1},
 		majorStep : { value : 10},
+		strings:	{ value :	{
+							tooltip: "Press the arrow up/down keys for minor increments, page up/down for major increments.",
+						}
+					}
 		}
 	
 });
@@ -227,15 +269,15 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 
 		initializer: function(config) {
             this._inputInitialize(config);
-            this.valueRange = this.valueMax - this.valueMin;
+            this.valueRange = this.get('max') - this.get('min');
 			this.slider2InputDenom = 10000;
 			this.sliderMin = 0.0;
 			this.sliderMax = this.sliderMin + this.slider2InputDenom*this.valueRange;
 			// Create a horizontal Slider using all defaults
 			var configVi = this.get('value'),
 				valueInitial;
-			valueInitial = (!configVi ? this.valueMin + 0.1*this.valueRange : configVi);
-			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.valueMin);
+			valueInitial = (!configVi ? this.get('min') + 0.1*this.valueRange : configVi);
+			this.sliderInitial = this.sliderMin + this.slider2InputDenom*(valueInitial - this.get('min'));
 			if (NdEjs.isNone(this.get('sliderLength')) || this.get('sliderLength') < 0)	 {
 				this.set('sliderLength', 200);
 			}
@@ -293,10 +335,10 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		_afterSliderChange : function(e) {
 			//Y.log('in _afterSliderChange');
 			var oldValue  = parseFloat(this.get("value")), 
-				nv = this.valueMin + ((e.newVal - this.sliderMin)/this.slider2InputDenom);
+				nv = this.get('min') + ((e.newVal - this.sliderMin)/this.slider2InputDenom);
 			//Y.log('this._afterSliderChange with e.newVal=' + e.newVal + '	 oldValue=' + oldValue + '	nv='+nv);
 			if (Math.abs(oldValue - nv) > this.sliderBinSize/2) {
-				if (nv <= this.valueMax && nv >= this.valueMin) {
+				if (nv <= this.get('max') && nv >= this.get('min')) {
 					this.inputNode.setStyle('color', 'black');
 				}
 				this.set("value", nv );
@@ -308,7 +350,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		    var nVal = +val;
 				
 		    this._inputUISetValue(val);
-			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.valueMin);
+			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.get('min'));
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
 			}
@@ -331,12 +373,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 				},
 		minorStep : { value : 1},
 		majorStep : { value : 10},
-		sliderLength : { value : 100},
-		strings:	{ value :	{
-							tooltip: "Press the arrow up/down keys for minor increments, page up/down for major increments.",
-							slider: "Slider"
-						}
-					}
+		sliderLength : { value : 100}
 		}
 	
 });

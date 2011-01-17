@@ -338,7 +338,7 @@ function FourLeafTreeWidget(config) {
 
 Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		// identifies the classname applied to the value field
-		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('joinedInputSlider') + '-group"',
+		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('constrainedNumericInput') + '-group"',
 		CANVAS_NODE_DIV_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('FourLeafTreeCanvas') + '-div"',
 		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label" />',
 		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),

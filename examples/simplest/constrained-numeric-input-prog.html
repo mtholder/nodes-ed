@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>test-simple.html</title>
+<!--begin custom header content for this example-->
+<link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/joined-input-slider/joined-input-slider-debug.js"></script>
+</head>
+<body class="yui3-skin-sam	yui-skin-sam">
+<h1>Constrained-Numeric-Input programmatic</h1>
+<p>An input box that only accepts numeric argmuents in a range.  Invalid input turns red (but does not generate valueChanged events). The input box also handles arrow up/down and page up/down events.</p>
+<div id="example"></div>
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI().use(	'event',
+                            'event-focus', 
+							"node", 
+							"console",
+							"joined-input-slider", function (Y) {
+    // preamble
+    new Y.Console({height : 900}).render();						
+    var d = Y.one('#example');
+    d.append('<label>Default [0, 100]; minorStep=1, 0.02=10;</label>');
+    
+    // instantiation
+    var first = new Y.ConstrainedNumericInput();
+    d.append(first);
+    first.render(d);
+    
+    // instantiation
+    first.after('valueChange', function (e) {
+        var v = +e.newVal;
+        Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + first.get('value'));
+    });
+    
+    d.append('<label>Constructor setting properties [0.2, 0.25]; minorStep=0.005, majorStep=0.02;</label>');
+    var second = new Y.ConstrainedNumericInput({   min : 0.2,
+                                                value : 0.22,
+                                                max : 0.25,
+                                                minorStep : 0.005,
+                                                majorStep : 0.02});
+    d.append(second);
+    second.render(d);
+    second.after('valueChange', function (e) {
+        var v = +e.newVal;
+        Y.log('after second.valueChanged event. Value is now: ' + v + ' from get=' + second.get('value'));
+    });
+
+    d.append('<label>Constructor setting properties [0.2, 0.25]; minorStep=0.005, majorStep=0.02, but setting max = 2</label>');
+    var third = new Y.ConstrainedNumericInput({   min : 0.2,
+                                                value : 0.22,
+                                                max : 0.25,
+                                                minorStep : 0.005,
+                                                majorStep : 0.02});
+    d.append(third);
+    third.render(d);
+    third.after('valueChange', function (e) {
+        var v = +e.newVal;
+        Y.log('after third.valueChanged event. Value is now: ' + v + ' from get=' + third.get('value'));
+    });
+    third.set('max', 2.0);
+    
+    Y.on('blur', function (e) {
+        var target = e.target;
+        if (target === first.inputNode) {
+            Y.log('blur on first. Value = ' + first.get('value'));
+        }
+        else if (target === second.inputNode) {
+            Y.log('blur on second. Value = ' + second.get('value'));
+        }
+        else if (target === third.inputNode) {
+            Y.log('blur on third. Value = ' + third.get('value'));
+        }
+        else {
+            Y.log('blur on unknown (target =' + e.target + ')');
+        }
+        
+    }, d);
+  
+});
+</script>
+</body>
+</html>
