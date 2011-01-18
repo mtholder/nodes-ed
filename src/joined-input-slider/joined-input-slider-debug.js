@@ -53,7 +53,11 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 			if (NdEjs.isNone(valueMax) || NdEjs.isNone(valueMin) || (valueMax < valueMin)) {
 				throw {name : 'Error' , message : 'ConstrainedNumericInput max must be >= min'};
 			}
-			s = config && config.srcNode;
+			this.valueChangeThreshold = 1e-9;
+			if (!config) {
+			    return;
+			}
+			s = config.srcNode;
 			if (s !== null && s !== undefined) {
 			    this.inputNode = Y.one(s);
 			    Y.log('inputNode grabbed')
@@ -66,7 +70,8 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
                     }
 			    }
 			}
-			this.valueChangeThreshold = 1e-9;
+			this.leftLabel = config.leftLabel;
+			this.rightLabel = config.rightLabel;
 		},
 
 		destructor : function() {
@@ -117,7 +122,13 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 			else {
 			    v = input.get('value');
             }		
+            if (this.leftLabel) {
+                contentBox.appendChild('<label>' + this.leftLabel + '</label>');
+            }
             contentBox.appendChild(input);
+            if (this.rightLabel) {
+                contentBox.appendChild('<label>' + this.rightLabel + '</label>');
+            }
 			input.set("title", strings.tooltip);
 			this.inputNode = input;
 			if (v !== null) {
@@ -389,6 +400,136 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		}
 	
 });
+
+
+
+
+// A group of numerical input field that all have the same valid range. The
+//	value of the InputGroup will be an array of numbers.
+function InputGroup(config) {
+	InputGroup.superclass.constructor.apply(this, arguments);
+}
+
+Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
+	GROUP_DIV_TEMPLATE : '<span class="' + Y.ClassNameManager.getClassName('numericInput') + '-group"',
+		
+	initializer: function(config) {
+			var v;
+			Y.log('InputGroup.initializer ');
+			this.labels = config.labels;
+			v = this.get('value');
+			if (Y.Lang.isArray(v)) {
+				this.num_elements = v.length;
+			}
+			else if (Y.Lang.isArray(this.labels)) {
+				this.num_elements = this.labels.length;
+			}
+			else {
+				this.num_elements = 0;
+			}
+			this.inputArray = [];
+			this.inputCtor = config.inputCtor || Y.ConstrainedNumericInput;
+		},
+
+	destructor : function() {
+			//Y.log('in destructor');
+			this.inputArray = null;
+		},
+ 
+
+	renderUI : function() {
+		Y.log('InputGroup._createInputs');
+		var contentBox = this.get("contentBox"),
+		    divNode,
+			i, inpgroupid, v, needToSetSelf = false;
+		for (i = 0; i < this.num_elements; ++i) {
+            divNode = Y.Node.create(this.GROUP_DIV_TEMPLATE + ' />');
+            contentBox.appendChild(divNode);
+			this.inputArray[i] = new this.inputCtor(
+			    {rightLabel : this.labels[i],
+			    max : this.get('max'),
+			    min : this.get('min'),
+			    majorStep : this.get('majorStep'),
+			    minorStep : this.get('minorStep')
+			    });
+			divNode.appendChild(this.inputArray[i]);
+			this.inputArray[i].render(divNode);
+		}
+		v = this.get('value');
+		if (v === null || v === undefined) {
+			v = [];
+		}
+		for (i = 0; i < this.num_elements; ++i) {
+			if (i >= v.length) {
+				v[i] = null;
+				needToSetSelf = true;
+			}
+			else if (Y.Lang.isNumber(+v[i])) {
+				this.inputArray[i].set('value', +v[i]);
+			}
+		}
+		this.set('value', v);
+	},
+
+	bindUI : function() {
+		Y.log('in InputGroup.bindUI');
+		var i, f, keyEventSpec;
+		this.after("valueChange", this._afterValueChange);
+		for (i = 0; i < this.inputArray.length; ++i) {
+		    el = this.inputArray[i]
+			f = Y.bind(this._onInputChange, this, i);
+			el.after("valueChange", Y.bind(this._onMemberChange, this, i) );
+		}
+		
+	},
+    
+    _onMemberChange : function(index, e) { 
+        Y.log('_onMemberChange(' + index + ', ' + e.newVal + ')');
+    },
+	_afterValueChange : function(e) {
+		var v = this.get('value'),
+			i, nv = e.newVal;
+		for (i = 0; i < nv; ++i) {
+			if (+nv[i] != +v[i]) {
+				this.inputArray[i].set('value', nv[i]);
+			}
+		}
+	},
+	
+	_validateValue: function(val) {
+		return true;
+		var elMin = this.get('min'),
+			elMax = this.get('max'),
+			i,v;
+		//Y.log("_validateValue val=" + val);
+		if (!Y.Lang.isArray(val)) {
+			return false;
+		}
+		for (i = 0; i < val.length; i++) {
+			v = val[i];
+			if (!(Y.Lang.isNumber(+v) && (+v >= +elMin) && (+v <= elMax))) {
+				return false;
+			}
+		} 
+		return true;
+  } 
+}, {
+	NAME :	"InputGroup", // required for Widget classes and used as event prefix
+	ATTRS : {
+		minorStep :	{ value : 1 },
+		majorStep :	{ value : 10},
+		value : { value : null,
+				  validator : function (val) {
+						return this._validateValue(val);
+					}
+			},
+		min : { value : 0.0 },
+		max : { value : Infinity }
+		}	
+});
+
+
+
 
 
 }, '@VERSION@' ,{requires:['event-key', 'widget', 'console', 'slider', 'node']}); //AUTOMATICALLY-PRUNE

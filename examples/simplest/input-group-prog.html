@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>test-simple.html</title>
+<!--begin custom header content for this example-->
+<link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/joined-input-slider/joined-input-slider-debug.js"></script>
+</head>
+<body class="yui3-skin-sam	yui-skin-sam">
+<h1>Input-Group programmatic</h1>
+<p>A group of numeric input boxes.</p>
+<div id="example"></div>
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI().use(	'event',
+                            'event-focus', 
+							"node", 
+							"console",
+							"joined-input-slider", function (Y) {
+    // preamble
+    new Y.Console({height : 900}).render();						
+    var d = Y.one('#example');
+
+    // instantiation
+    var first = new Y.InputGroup({labels : ['one', 'two', 'three']});
+    d.append(first);
+    first.render(d);
+    
+    // instantiation
+    first.after('valueChange', function (e) {
+        var v = +e.newVal;
+        Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + first.get('value'));
+    });
+
+  
+});
+</script>
+</body>
+</html>
