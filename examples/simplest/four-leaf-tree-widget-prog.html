@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>FourLeafTreeWidget programmatic</title>
+<!--begin custom header content for this example-->
+<link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/numeric-input/numeric-input-debug.js"></script>
+<script type="text/javascript" src="../../src/four-leaf-tree-widget/four-leaf-tree-widget-debug.js"></script>
+</head>
+<body class="yui3-skin-sam	yui-skin-sam">
+<h1>FourLeafTreeWidget programmatic</h1>
+<p>four-leaf-tree-widget shows a tree and 5 edge length inputs.</p>
+<div id="example"></div>
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI().use(	'event',
+            'event-focus', 
+            'node', 
+            'console',
+            'numeric-input',
+            'four-leaf-tree-canvas',
+             'four-leaf-tree-widget',
+             function (Y) {
+    // preamble
+    new Y.Console({height : 900}).render();						
+    var d = Y.one('#example');
+
+    // instantiation
+    var first = new Y.FourLeafTreeWidget({treeName : 'AB',
+									treeIndex : 0});
+    d.append(first);
+    first.render(d);
+  
+});
+</script>
+</body>
+</html>

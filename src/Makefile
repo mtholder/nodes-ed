@@ -23,9 +23,6 @@ build_tmp/nodes-ed-debug.js : js/util.js $(DIRS)
 	@echo "build_tmp/nodes-ed-debug.js built"
 
 
-debug.js: build_tmp/nodes-ed-debug.js
-	cp build_tmp/nodes-ed-debug.js debug.js
-
 $(DIRS) :
 	@cd $(@F) ; $(MAKE) ; cd ..
 

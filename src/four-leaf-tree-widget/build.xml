@@ -2,8 +2,8 @@
 
 <!-- YUI 3 Component Build File -->
 
-<project name="FourLeafWidget" default="local">
-    <description>FourLeafWidget Build File</description>
+<project name="FourLeafTreeWidget" default="local">
+    <description>FourLeafTreeWidget Build File</description>
     <property file="build.properties" />
     <import file="${builddir}/3.x/bootstrap.xml" description="Default Build Properties and Targets" />
 </project>

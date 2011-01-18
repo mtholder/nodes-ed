@@ -1,1 +1,1 @@
-Do not edit the file four-leaf-widget.js in this directory. it is created from ../four-leaf-widget-debug.js
+Do not edit the file four-leaf-tree-widget.js in this directory. it is created from ../four-leaf-tree-widget-debug.js
