@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>test-simple.html</title>
+<title>Input-Group programmatic</title>
 <!--begin custom header content for this example-->
 <link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
 <script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
@@ -32,7 +32,7 @@ YUI().use(	'event',
     
     // instantiation
     first.after('valueChange', function (e) {
-        var v = +e.newVal;
+        var v = e.newVal;
         Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + first.get('value'));
     });
 
@@ -50,7 +50,7 @@ YUI().use(	'event',
     /*
     // instantiation
     second.after('valueChange', function (e) {
-        var v = +e.newVal;
+        var v = e.newVal;
         Y.log('after second. valueChanged event. Value is now: ' + v + ' from get=' + second.get('value'));
     });
 */

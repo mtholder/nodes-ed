@@ -547,6 +547,105 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
 
 
 
+function SumToOneTransformation(config) {
+	SumToOneTransformation.superclass.constructor.apply(this, arguments);
+}
+
+/// SumToOneTransformation is an adaptor between:
+//		- an input source that generates valueChange events for an array of numbers, and
+//		- a "client" that would like to get valueChange events for a "normalized"
+//			version of the array (in which each element is scaled to reflect the
+//			proportion of the sum that that the corresponding element contributes
+//	The implementation queues a timer to fire after obj.delay milliseconds after
+//		the valueChange event is received.
+
+Y.SumToOneTransformation = Y.extend(SumToOneTransformation, Y.Base, {
+
+	initializer : function(config) {
+		Y.log('SumToOneTransformation.initializer ');
+		this.unnormalized = config.unnormalized;
+		this.delay = config.delay || 20;
+		this.tolerance = 1e-7 ; // sums that are not within this value of 1.0 will be rejected by _validateValue
+		this.unnormalized.after("valueChange", Y.bind(this._afterValueChange, this));
+		if (this.unnormalized) {
+		    var u = this.unnormalized.get('value');
+		    if (u) {
+		        this._calculateNormalized(u);
+            }
+		}
+	},
+	
+	_afterValueChange : function (e) {
+		var uval = e.newVal;
+		if (!Y.Lang.isArray(uval)) {
+			Y.log('SumToOneTransformation._afterEdgeChange for ' + uval);
+			return;
+		}
+		if (this.wait) {
+			this.wait.cancel();
+			this.wait = null;
+		}
+		Y.log('SumToOneTransformation._afterValueChange installing timer');
+		this.wait = Y.later(this.delay, this, function () {
+				this.wait = null;
+				this._calculateNormalized(uval);
+			});
+	},
+
+	_calculateNormalized : function (uval) {
+		var s = 0.0, 
+		    v = [],
+		    o = this.get('value') || [],
+		    i, needToUpdate=false;
+		Y.log('SumToOneTransformation._calculateNormalized(' + uval + ')');
+		for (i = 0; i < uval.length; ++i) {
+			s += +uval[i];
+		}
+		for (i = 0; i < uval.length; ++i) {
+			v[i] = (+uval[i])/s;
+			if (+v[i] != +o[i]) {
+				needToUpdate = true;
+			}
+		}
+		if (needToUpdate) {
+    		Y.log('SumToOneTransformation _calculateNormalized calling set("value", ' + v + ')');
+			this.set('value', v);
+		}
+		return v;
+	},
+
+	_validateValue: function(val) {
+		var min = 0.0,
+			s = 0,
+			i,v;
+		if (!Y.Lang.isArray(val)) {
+			return false;
+		}
+		for (i = 0; i < val.length; i++) {
+			v = val[i];
+			if (!(Y.Lang.isNumber(+v) && (+v >= +0.0))) {
+				//Y.log("_validateValue returning false");
+				return false;
+			}
+			s += v;
+		}
+		if (Math.abs(s - 1.0) > this.tolerance) {
+			return false;
+		}
+		return true;
+  } 
+}, {
+	NAME :	"sumToOneTransformation", // required for Widget classes and used as event prefix
+	ATTRS : {
+		value : { value : null,
+				  validator : function (val) {
+						return this._validateValue(val);
+					}
+			}
+		}	
+});
+
+
 
 
 }, '@VERSION@' ,{requires:['event-key', 'widget', 'console', 'slider', 'node']}); //AUTOMATICALLY-PRUNE
