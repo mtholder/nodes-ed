@@ -374,7 +374,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		    var nVal = +val;
 				
 		    this._inputUISetValue(val);
-			sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.get('min'));
+			var sliderValue = this.sliderMin + this.slider2InputDenom*(nVal - this.get('min'));
 			if (this.slider.wait) {
 				this.slider.wait.cancel();
 			}
