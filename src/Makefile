@@ -1,4 +1,4 @@
-DIRS = four-leaf-widget \
+DIRS = four-leaf-tree-widget \
 	four-leaf-tree-calculator \
 	grouped-histogram \
 	numeric-input 
