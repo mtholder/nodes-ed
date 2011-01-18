@@ -116,7 +116,6 @@ YUI({debug : DEBUGGING}).use('event-key',
 							 'grouped-histogram',
 							 'node-event-simulate',
 							 'yui2-button',
-							 'input-groups',
 							 function(Y) {
 
 // load a console in debug mode, so we see the Y.log messages
@@ -134,7 +133,7 @@ if (DEBUGGING) {
 		flc,
 		calcArray = [],
 		colorArray = [],
-		treeCalcOffset = 0,
+		treeCalcOffset = 1,
 		ppPanelDiv, dataMatrixDiv, traceDiv, vig,
 		categoryLabels =  ["0000",
 						  "0001",
@@ -146,10 +145,11 @@ if (DEBUGGING) {
 						  "0111"];
 		
 	dataMatrixDiv = Y.one('#dataMatrix')
-	vig = new Y.InputGroups({labels : categoryLabels});
+	vig = new Y.InputGroup({labels : categoryLabels});
 	vig.render(dataMatrixDiv);
-	
-	
+	var dataPatternFreq = new Y.SumToOneTransformation({unnormalized : vig});
+	calcArray[0] = dataPatternFreq;
+	colorArray[0] = '#000';
 
 	for (i = 0; i < treeNameArray.length; ++i) {
 		treeName = treeNameArray[i];
@@ -164,7 +164,7 @@ if (DEBUGGING) {
 								edgeLenContainer : flw});
 		calcArray[treeCalcOffset + i] = flc;
 		treeWidgets[i] = flw;
-		colorArray[i] = flw.get('color');
+		colorArray[treeCalcOffset + i] = flw.get('color');
 	}
 	
 	ppPanelDiv = Y.one('#patProbs');
@@ -212,11 +212,20 @@ if (DEBUGGING) {
 		return b;
 	}
 	var container = 'panelbrowser';
+	var oCheckButton10 = createShowHide({label :	"Data counts",
+										idtag : 'dataMatrix', 
+										container : container,
+										toControl : dataMatrixDiv,
+										callback : function (v) {
+												ppPanel.showGroup[0] = v;
+												ppPanel._paint();
+											}
+										});
 	var oCheckButton9 = createShowHide({label : "Pattern Probs",
 										idtag : 'patprob',
 										container : container,
 										toControl : ppPanelDiv});
-	var thediv = Y.one('#treeABDiv');
+	thediv = Y.one('#treeABDiv');
 	var oCheckButton10 = createShowHide({label :	"AB | CD",
 										idtag : 'ab', 
 										container : container,
