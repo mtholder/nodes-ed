@@ -98,7 +98,7 @@ the tests you need to:
 Then any time that you would like to test you can:
     1. launch yeti is server mode.  I use the following shell script on Mac
         with ~/myman/yeti/redirect.html being a html file that redirects to 
-        http://localhost:8000 
+           localhost:8000 
         so that I get three browsers to test with.  I use the PID to kill yeti
         when I'm done testing.
 
