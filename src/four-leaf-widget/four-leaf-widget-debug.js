@@ -320,7 +320,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 	
 });
 
-}, '@VERSION@' ,{requires:['widget', 'console', 'joined-input-slider', 'node']}); //AUTOMATICALLY-PRUNE
+}, '@VERSION@' ,{requires:['widget', 'console', 'numeric-input', 'node']}); //AUTOMATICALLY-PRUNE
 
 
 
@@ -579,4 +579,4 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 
 }); // close Y.add
 
-}, '@VERSION@' ,{requires:['widget', 'console', 'joined-input-slider', 'node']}); //AUTOMATICALLY-PRUNE
+}, '@VERSION@' ,{requires:['widget', 'console', 'numeric-input', 'node']}); //AUTOMATICALLY-PRUNE

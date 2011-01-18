@@ -1,1 +1,1 @@
-Do not edit the file joined-input-slider.js in this directory. it is created from ../joined-input-slider-debug.js
+Do not edit the file numeric-input.js in this directory. it is created from ../numeric-input-debug.js

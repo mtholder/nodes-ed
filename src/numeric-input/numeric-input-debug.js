@@ -1,4 +1,4 @@
-YUI.add('joined-input-slider', function(Y) { //AUTOMATICALLY-PRUNE
+YUI.add('numeric-input', function(Y) { //AUTOMATICALLY-PRUNE
 
 //Y.log("starting to declare JoinedInputSlider");
 // ctor...
@@ -456,7 +456,7 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
             contentBox.appendChild(divNode);
             Y.log('InputGroup.renderUI element ' + i);
 			this.inputArray[i] = new this.inputCtor(
-			    {rightLabel : this.labels[i],
+			    {rightLabel : this.labels && this.labels[i] || null,
 			    max : this.get('max'),
 			    min : this.get('min'),
 			    majorStep : this.get('majorStep'),
@@ -514,12 +514,11 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
 	},
 	
 	_validateValue: function(val) {
-		return true;
 		var elMin = this.get('min'),
 			elMax = this.get('max'),
 			i,v;
-		//Y.log("_validateValue val=" + val);
-		if (!Y.Lang.isArray(val)) {
+		Y.log("InputGroup._validateValue val=" + val);
+		if ((!Y.Lang.isArray(val)) || (this.num_elements && (val.length != this.num_elements))) {
 			return false;
 		}
 		for (i = 0; i < val.length; i++) {

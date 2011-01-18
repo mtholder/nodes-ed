@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Input-Group programmatic</title>
+<title>Sum-To-One-Transformation programmatic</title>
 <!--begin custom header content for this example-->
 <link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
 <script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
@@ -10,8 +10,8 @@
 <script type="text/javascript" src="../../src/numeric-input/numeric-input-debug.js"></script>
 </head>
 <body class="yui3-skin-sam	yui-skin-sam">
-<h1>Input-Group programmatic</h1>
-<p>A group of numeric input boxes.</p>
+<h1>SumToOneTransformation programmatic</h1>
+<p>Demonstration subscribing to a transformation of an input array group of numeric input boxes.</p>
 <div id="example"></div>
 <div id="testLogger"></div>
 <script type="text/javascript">
@@ -29,31 +29,15 @@ YUI().use(	'event',
                                   value : [3, 2.5, 1]});
     d.append(first);
     first.render(d);
+    var transf = new Y.SumToOneTransformation({unnormalized : first});
     
     // instantiation
-    first.after('valueChange', function (e) {
+    transf.after('valueChange', function (e) {
         var v = e.newVal;
-        Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + first.get('value'));
+        NdEjs.logObject(e, Y.log);
+        Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + transf.get('value'));
     });
 
-
-    // instantiation
-    var second = new Y.InputGroup({labels : ['os', 'tws', 'ths'],
-                                  value : [3, 2.5, 1],
-                                  inputCtor : Y.JoinedInputSlider,
-                                  max : 10,
-                                  min : 0});
-    Y.log('second created with value = ' + second.get('value'));
-    d.append(second);
-    second.render(d);
-    Y.log('second rendered with value = ' + second.get('value'));
-    /*
-    // instantiation
-    second.after('valueChange', function (e) {
-        var v = e.newVal;
-        Y.log('after second. valueChanged event. Value is now: ' + v + ' from get=' + second.get('value'));
-    });
-*/
   
 });
 </script>

@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="../../yui3/build/cssfonts/fonts-min.css" type="text/css">
 <script type="text/javascript" src="../../yui3/build/yui/yui-debug.js"></script>
 <script type="text/javascript" src="../src/js/util.js"></script>
-<script type="text/javascript" src="../src/joined-input-slider/joined-input-slider-debug.js"></script>
+<script type="text/javascript" src="../src/numeric-input/numeric-input-debug.js"></script>
 <script type="text/javascript" src="../src/four-leaf-widget/four-leaf-widget-debug.js"></script>
 
 
@@ -49,7 +49,7 @@
 <div id="testLogger"></div>
 <script type="text/javascript">
 YUI({ filter: 'raw' }).use(	"console", "test", 
-							"joined-input-slider",
+							"numeric-input",
 							'four-leaf-tree-canvas',
 							'four-leaf-tree-widget', function (Y) {
 
@@ -91,33 +91,30 @@ YUI({ filter: 'raw' }).use(	"console", "test",
 		//---------------------------------------------------------------------
 
 		testCreate : function () {
-			var Assert = Y.Assert;
 			var inp = this.generateWidget(0.25);
-			Assert.isObject(inp);
-			Assert.areEqual(null, inp.get('value'));
+			Y.Assert.isObject(inp);
+			Y.Assert.areEqual(null, inp.get('value'));
 		},
 		testSet : function () {
-			var Assert = Y.Assert;
 			var inp = this.generateWidget(0.25);
-			Assert.isObject(inp);
-			Assert.areEqual(null, inp.get('value'));
+			Y.Assert.isObject(inp);
+			Y.Assert.areEqual(null, inp.get('value'));
 			inp.set('value', 0.35);
-			Assert.areEqual(null, inp.get('value'));
+			Y.Assert.areEqual(null, inp.get('value'));
 			var valid = [0.1, 0.2, 0.3, 0.4, 0.45];
 			inp.set('value', valid);
-			Assert.areEqual(valid, inp.get('value'));
+			Y.Assert.areEqual(valid, inp.get('value'));
 		},
 
 		testSetInputArray : function () {
-			var Assert = Y.Assert;
 			var inp = this.generateWidget(0.25);
-			Assert.isObject(inp);
-			Assert.areEqual(null, inp.get('value'));
+			Y.Assert.isObject(inp);
+			Y.Assert.areEqual(null, inp.get('value'));
 			inp.set('value', 0.35);
-			Assert.areEqual(null, inp.get('value'));
+			Y.Assert.areEqual(null, inp.get('value'));
 			var valid = [0.1, 0.2, 0.3, 0.4, 0.45];
 			inp.set('value', valid);
-			Assert.areEqual(valid, inp.get('value'));
+			Y.Assert.areEqual(valid, inp.get('value'));
 
 			inp.render(this.par);
 			
