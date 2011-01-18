@@ -58,7 +58,7 @@ YUI({ filter: 'raw' }).use(	"console", "test",
 	Y.example.test.FourLeafTreeWidgetTestCase = new Y.Test.Case({
 
 		//name of the test case - if not provided, one is auto-generated
-		name : "Slider Tests",
+		name : "Four leaf widget Tests",
 
 		//---------------------------------------------------------------------
 		// setUp and tearDown methods - optional
@@ -119,7 +119,7 @@ YUI({ filter: 'raw' }).use(	"console", "test",
 			inp.render(this.par);
 			
 			var nv = 0.023;
-			inp.inputArray[1].set('value', nv);
+			inp.inputGroup.inputArray[1].set('value', nv);
 			valid[1] = nv;
 			Y.ArrayAssert.itemsAreEqual(valid, inp.get('value'));
 		},

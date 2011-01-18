@@ -50,7 +50,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			this.canvasContext = null;
 			
 			this._edgeLenToPlot = [];
-			this.edgeLenValueSource = [];
+			this.edgeLenValueSource = null;
 				
 		},
 
@@ -105,7 +105,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 		},
 
 		  
-		_afterEdgeLengthChanged : function (index, e) {
+		_afterEdgeLengthChanged : function (e) {
 			this._paint();
 		},
 			  
@@ -118,18 +118,16 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			var i, 
 				elvs,
 				nv, 
-				changedVal = false;
+				changedVal = false,
+				ev = null;
 			if (this.edgeLenValueSource) {
-				for (i = 0; i < this.edgeLenValueSource.length; ++i) {
-					elvs = this.edgeLenValueSource[i];
-					if (elvs) {
-						nv = +(this.edgeLenValueSource[i].get('value'));
-						if (nv != this._edgeLenToPlot[i]) {
-							this._edgeLenToPlot[i] = nv;
-							changedVal = true;
-						}
-						//Y.log('_updateEdgeLengthsFromInput this._edgeLenToPlot[' + i + '] = ' + this._edgeLenToPlot[i]);
-					}
+			    ev = this.edgeLenValueSource.get('value');
+				for (i = 0; i < ev.length; ++i) {
+                    nv = +ev[i];
+                    if (nv != this._edgeLenToPlot[i]) {
+                        this._edgeLenToPlot[i] = nv;
+                        changedVal = true;
+                    }
 				}
 			}
 			if (changedVal) {
@@ -261,16 +259,16 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 
 		// Updates the input box and slider to reflect val
 		_uiSetValue : function(val) {
-			var i, elvs, nv;
+			var i, ev;
 			if (NdEjs.isNone(val)) {
 				return;
 			}
 			if (this.edgeLenValueSource) {
+			    ev = this.edgeLenValueSource.get('value');
 				for (i = 0; (i < val.length && i < 5) ; ++i ) {
-					elvs = this.edgeLenValueSource[i]; 
-					nv = +val[i];
-					if (elvs && nv != +elvs.get('value')) {
-						elvs.set('value', val[i]);
+					if ((!ev) || Math.abs(+val[i] - +ev[i]) > 1e-7) {
+					    this.edgeLenValueSource.set('value', val);
+					    break;
 					}
 				}
 			}
@@ -338,9 +336,7 @@ function FourLeafTreeWidget(config) {
 
 Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		// identifies the classname applied to the value field
-		INPUT_NODE_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('constrainedNumericInput') + '-group"',
 		CANVAS_NODE_DIV_TEMPLATE : '<div class="' + Y.ClassNameManager.getClassName('FourLeafTreeCanvas') + '-div"',
-		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('FourLeafTreeWidget') + '-edge-label" />',
 		INPUT_CLASS : Y.ClassNameManager.getClassName('fourLeafWidgetDiv'),
 		
 		initializer: function(config) {
@@ -350,16 +346,14 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			this.treeIndex = config.treeIndex;
 			this.edgeNameArray = ['A', 'B', 'C', 'D', 'internal'];
 			
-			this.inputNode = null;
-			this.inputArray = null;
+			this.inputGroup = null;
 			this.treeCanvas = null;
 
 		},
 
 		destructor : function() {
 			//Y.log('in FourLeafTreeWidget.destructor');
-			this.inputNode = null;
-			this.inputArray = null;
+			this.inputGroup = null;
 			this.treeCanvas = null;
 			
 		},
@@ -368,24 +362,27 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			//Y.log('in FourLeafTreeWidget.renderUI');
 			this._renderCanvas();
 			this._renderEdgeLengthSliders();
+			if (!this.treeCanvas.edgeLenValueSource) {
+				this.treeCanvas.edgeLenValueSource = this.inputGroup;
+			}
+			this.treeCanvas.set('value', this.inputGroup.get('value'));
+			this.treeCanvas._paint();
+			Y.log('FourLeafTreeWidget.render inputGroup.value = ' + this.inputGroup.get('value'));
 		},
 
 		bindUI : function() {
 			//Y.log('in FourLeafTreeWidget.bindUI');
-			var i, inp, iv = [];
+			var i, iv = [];
 			if (!this.treeCanvas) {
 				this._createCanvas();
 			}
-			if (!this.inputArray) {
+			if (!this.inputGroup) {
 				this._createInputs();
 			}
-			for (i = 0; i < this.inputArray.length; ++i) {
-				inp = this.inputArray[i];
-				inp.after("valueChange", Y.bind(this.treeCanvas._afterEdgeLengthChanged, this.treeCanvas, i));
-				inp.after("valueChange", Y.bind(this._afterEdgeLengthChanged, this, i));
-				iv[i] = inp.get('value');
-			}
+			this.inputGroup.after("valueChange", Y.bind(this.treeCanvas._afterEdgeLengthChanged, this.treeCanvas));
+			this.inputGroup.after("valueChange", Y.bind(this._afterEdgeLengthChanged, this));
 			this.after("colorChange", Y.bind(this._colorChanged, this));
+			iv = this.inputGroup.get('value');
 			this.treeCanvas.set('value', iv);
 			this.set('value', iv);
 		},
@@ -399,84 +396,39 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 
 		_renderEdgeLengthSliders : function() {
 			//Y.log('in _renderEdgeLengthSliders');
-			var inp, cb, lab, v = this.get('value'), i;
-			if (!this.inputArray) {
+			var cb, lab, v = this.get('value'), i;
+			if (!this.inputGroup) {
 				this._createInputs();
 			}
-			
-			for (i = 0; i < this.inputArray.length; ++i) {
-				inp = this.inputArray[i];
-				inp.render(this);
-				cb = inp.get('contentBox');
-				lab = Y.Node.create(this.LABEL_TEMPLATE);
-				lab.set('text', ' Edge: ' + this.edgeNameArray[i]);
-				cb.appendChild(lab);
-
-			}
-
-			if (this._validateValue(v)) {
-				for (i = 0; i < this.inputArray.length; ++i) {
-					inp = this.inputArray[i];
-					inp.set('value', v[i]);
-				}
-			}
+			cb = this.get('contentBox');
+			this.inputGroup.render(cb);
 		},
 		
 		_createInputs : function() {
 			Y.log('FourLeafTreeWidget._createInputs');
 			var contentBox = this.get("contentBox"),
-				inpNode = this.inputNode,
-				i, inpgroupid;
-			if (!inpNode) {
-				inpgroupid =  this.treeName + '-input';
-				contentBox.append(this.INPUT_NODE_TEMPLATE + ' id="' + inpgroupid + '">');
-				inpNode = contentBox.one("#" + inpgroupid);
+ 				i, labels = [];
+			if (this.inputGroup) {
+			    return;
 			}
-			
-			this.inputNode = inpNode;
-			this.inputArray = this._createEdgeLengthSliders(this.inputNode, this.treeName);
-			if (this.treeCanvas) {
-				this.treeCanvas.edgeLenValueSource = this.inputArray;
-			}
+            for (i = 0; i < this.edgeNameArray.length; ++i) {
+                labels[i] = ' Edge: ' + this.edgeNameArray[i];
+            }
+            v = this.get('value');
+            this.inputGroup = new Y.InputGroup({max : 0.5,
+                                     min : 0.0,
+                                     value : (this._validateValue(v) && v) || [0.05, 0.05, 0.05, 0.05, 0.05],
+                                     minorStep : 0.0001,
+                                     majorStep : 0.01,
+                                     inputCtor : Y.JoinedInputSlider,
+                                     labels : labels
+                                     });
+            contentBox.appendChild(this.inputGroup);
+            if (this.treeCanvas) {
+                this.treeCanvas.edgeLenValueSource = this.inputGroup;
+            }
 		},
-		_createEdgeLengthSliders : function(srcNode, treeName) {
-			var jInpSlider, i, edgeNd, edgeValueWidgets, edgeName, eid;
-			
-				edgeValueWidgets = [];
-			try {
-				for (i = 0; i < this.edgeNameArray.length; ++i) {
-					edgeName = this.edgeNameArray[i];
-					eid = treeName + 'edge' + edgeName;
-					srcNode.append('<input type="text" id="' + eid + '" class="yui3-joinedInputSlider-loading" value="0.05" />');
-				}
-				for (i = 0; i < this.edgeNameArray.length; ++i) {
-					edgeName = this.edgeNameArray[i];
-					eid = treeName + 'edge' + edgeName;
-					edgeNd = Y.one('#' + eid);
-					//NdEjs.logObject(edgeNd, Y.log);
-					jInpSlider = new Y.JoinedInputSlider({
-						srcNode : edgeNd,
-						value : edgeNd.get("value"),
-						max : 0.5,
-						min : 0.0,
-						minorStep : 0.0001,
-						majorStep : 0.01
-					});
-					edgeValueWidgets[i] = jInpSlider;
-				}
-				return edgeValueWidgets;
-			}
-			catch (e) {
-				NdEjs.logException(e, Y.log); 
-				try {
-					NdEjs.logException(e, Y.log);
-				}
-				catch (ee) {
-					Y.log("EE = " + ee);
-				}
-				throw e;
-			}
-		},
+
 		_createCanvas : function () {
 			var contentBox = this.get("contentBox"),
 				inpgroupid,
@@ -495,8 +447,8 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 					color : this.get('color')
 				});
 			this.set('color', this.treeCanvas.get('color'));
-			if (this.inputArray) {
-				this.treeCanvas.edgeLenValueSource = this.inputArray;
+			if (this.inputGroup) {
+				this.treeCanvas.edgeLenValueSource = this.inputGroup;
 			}
 			inpNode.append(this.treeCanvas);
 		},
@@ -513,21 +465,8 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			return null;
 		},
 
-		_afterEdgeLengthChanged : function (index, e) {
-			var i, v = this.get('value');
-			if (NdEjs.isNone(v)) {
-				if (NdEjs.isNone(this.inputArray)) {
-					return;
-				}
-				v = [];
-				for (i = 0; i < this.inputArray.length; ++i) {
-					v[i] = this.inputArray[i].get('value');
-				}
-			}
-			else {
-				v[index] = +e.newVal;
-			}
-			this.set('value', v);
+		_afterEdgeLengthChanged : function (e) {
+			this.set('value', e.newVal);
 		},
 		
 		_colorChanged : function(e) {

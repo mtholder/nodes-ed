@@ -10,6 +10,7 @@ function ConstrainedNumericInput(config) {
 Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		// identifies the classname applied to the value field
 		INPUT_CLASS : Y.ClassNameManager.getClassName('constrainedNumericInput', "value"),
+		LABEL_TEMPLATE : '<label class="' + Y.ClassNameManager.getClassName('constrainedNumericInput') + '-label">',
 		
 		// used to create ConstrainedNumericInput DOM elements 
 		INPUT_TEMPLATE : '<input type="text" class="' + Y.ClassNameManager.getClassName('constrainedNumericInput', "value") + '">',
@@ -125,11 +126,11 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 			    v = input.get('value');
             }		
             if (this.leftLabel) {
-                contentBox.appendChild('<label>' + this.leftLabel + '</label>');
+                contentBox.appendChild(this.LABEL_TEMPLATE + this.leftLabel + '</label>');
             }
             contentBox.appendChild(input);
             if (this.rightLabel) {
-                contentBox.appendChild('<label>' + this.rightLabel + '</label>');
+                contentBox.appendChild(this.LABEL_TEMPLATE + this.rightLabel + '</label>');
             }
 			input.set("title", strings.tooltip);
 			this.inputNode = input;
