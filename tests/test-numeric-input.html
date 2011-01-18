@@ -200,7 +200,7 @@ YUI({ filter: 'raw' }).use(	'event',
 		},
 		
 
-		testUpDown : function () {
+		testElMod : function () {
 			var inp = this.generateWidget(0.25);
 			inp.render(this.par);
 			var eventSimulator = inp.get('contentBox');
@@ -231,7 +231,7 @@ YUI({ filter: 'raw' }).use(	'event',
 		}
 	});
 	
-	Y.example.test.InputGroupTestCase = new Y.Test.Case({
+	Y.example.test.SumToOneTransformationTestCase = new Y.Test.Case({
 
 		//name of the test case - if not provided, one is auto-generated
 		name : "InputGroup Tests",
@@ -254,7 +254,8 @@ YUI({ filter: 'raw' }).use(	'event',
 		},
 
 		generateWidget : function(v) {
-			return new Y.InputGroup({value : v});
+			var ig = new Y.InputGroup({value : v});
+			return new Y.SumToOneTransformation({unnormalized : ig}); 
 		},
 
 		//---------------------------------------------------------------------
@@ -262,38 +263,42 @@ YUI({ filter: 'raw' }).use(	'event',
 		//---------------------------------------------------------------------
 
 		testCreate : function () {
-			var inp = this.generateWidget([3, 2.5, 1]);
+			var inp = this.generateWidget([1, 2, 1]);
 			Y.Assert.isObject(inp);
-			Y.ArrayAssert.itemsAreEqual([3, 2.5, 1], inp.get('value'));
+			Y.ArrayAssert.itemsAreEqual([0.25, 0.5, 0.25], inp.get('value'));
 		},
 
 		testSet : function () {
 			var Assert = Y.Assert;
-			var inp = this.generateWidget([3, 2.5, 1]);
+			var inp = this.generateWidget([1, 2, 1]);
 			Assert.isObject(inp);
-			Y.ArrayAssert.itemsAreEqual([3, 2.5, 1], inp.get('value'));
-			inp.set('value', [3.5, 2.5, 1]);
-			Y.ArrayAssert.itemsAreEqual([3.5, 2.5, 1], inp.get('value'));
+			Y.ArrayAssert.itemsAreEqual([0.25, 0.5, 0.25], inp.get('value'));
+			inp.set('value', [.25, .25, 0.5]);
+			Y.ArrayAssert.itemsAreEqual([.25, .25, 0.5], inp.get('value'));
+			// out of bounds set should have no effect
+			inp.set('value', [.2, .1, 0.07]);
+			Y.ArrayAssert.itemsAreEqual([.25, .25, 0.5], inp.get('value'));
+			// set to [.25, .25, 0.5] should scale the values of the inputs to 
+			//		keep the sum constant.
+			var e = [1, 1, 2];
+			var un = inp.unnormalized.get('value');
+			for (var i = 0; i < e.length; ++ i) {
+				Y.Assert.areEqual(e[i], un[i]);
+			}
 		},
 		
-		testOutOfBounds : function () {
-			var Assert = Y.Assert;
-			var inp = this.generateWidget([3, 2.5, 1]);
-			Assert.isObject(inp);
-			Y.ArrayAssert.itemsAreEqual([3, 2.5, 1], inp.get('value'));
-			inp.set('value', [3, 2.5, 1, 2]);
-			Y.ArrayAssert.itemsAreEqual([3, 2.5, 1], inp.get('value'));
-		},
 		
 
-		testUpDown : function () {
+		testElMod : function () {
 			var Assert = Y.Assert;
-			var inp = this.generateWidget([3.2, 2.5, 1]);
+			var inp = this.generateWidget([1, 2, 1]);
 			Assert.isObject(inp);
-			Y.ArrayAssert.itemsAreEqual([3.2, 2.5, 1], inp.get('value'));
-			inp.render(this.par);
-			inp.inputArray[2].set('value', 0);
-			Y.ArrayAssert.itemsAreEqual([3.2, 2.5, 0], inp.get('value'));
+			Y.ArrayAssert.itemsAreEqual([0.25, 0.5, 0.25], inp.get('value'));
+			inp.unnormalized.render(this.par);
+			inp.unnormalized.inputArray[2].set('value', 0);
+			this.wait(function() {
+				Y.ArrayAssert.itemsAreEqual([1/3, 2/3, 0], inp.get('value'));
+			}, 200);
 		}
 	});
 
@@ -301,6 +306,7 @@ YUI({ filter: 'raw' }).use(	'event',
 	Y.example.test.ExampleSuite.add(Y.example.test.ConstrainedNumericInputTestCase);
 	Y.example.test.ExampleSuite.add(Y.example.test.SliderTestCase);
 	Y.example.test.ExampleSuite.add(Y.example.test.InputGroupTestCase);
+	Y.example.test.ExampleSuite.add(Y.example.test.SumToOneTransformationTestCase);
 
 	//create the console
 	var r = new Y.Console({

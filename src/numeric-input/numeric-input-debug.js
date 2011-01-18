@@ -572,6 +572,33 @@ Y.SumToOneTransformation = Y.extend(SumToOneTransformation, Y.Base, {
 		        this._calculateNormalized(u);
             }
 		}
+		this.on('valueChange', Y.bind(this._onSetValue, this));
+	},
+	
+	_onSetValue : function (e) {
+	    var s = 0.0, 
+	        i, 
+	        uv,
+	        nv = [],
+	        needToUpdate = false;
+	    if (!this._validateValue(e.newVal))
+	        return;
+	    Y.log('in SumToOneTransformation._onSetValue e.newVal = ' +e.newVal);
+	    uv = this.unnormalized.get('value');
+		for (i = 0; i < uv.length; ++i) {
+			s += +uv[i];
+		}
+        Y.log('in SumToOneTransformation._onSetValue s = ' + s);
+		for (i = 0; i < uv.length; ++i) {
+		    nv[i] = +e.newVal[i]*s;
+		    if (Math.abs(+nv[i] - +uv[i]) > this.tolerance) {
+		        needToUpdate = true;
+		    }
+		}
+		if (needToUpdate) {
+	        Y.log('in SumToOneTransformation._onSetValue setting unnorm to = ' + nv);
+		    this.unnormalized.set('value', nv);
+		}
 	},
 	
 	_afterValueChange : function (e) {
@@ -621,7 +648,7 @@ Y.SumToOneTransformation = Y.extend(SumToOneTransformation, Y.Base, {
 			return false;
 		}
 		for (i = 0; i < val.length; i++) {
-			v = val[i];
+			v = +val[i];
 			if (!(Y.Lang.isNumber(+v) && (+v >= +0.0))) {
 				//Y.log("_validateValue returning false");
 				return false;
