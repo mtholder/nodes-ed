@@ -39,11 +39,13 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 			
 		},
 		initializer: function(config) {
+		    Y.log('ConstrainedNumericInput.initializer')
 		    this._inputInitialize(config);
 		},
 		
-		_inputInitialize : function(config) {		
-			//NdEjs.logObject(config, Y.log, {level:'info', prefix: 'in initializer(config).  config is:'});
+		_inputInitialize : function(config) {
+		    Y.log('ConstrainedNumericInput._inputInitialize')
+			NdEjs.logObject(config, Y.log); //, {level:'info', prefix: 'in initializer(config).  config is:'});
 			// \todo the following code should go in a hook triggered when max, min, or sliderLength change (except it shouldn't raise exception there....)
 			var s, valueMax, valueMin, v, i, f;
 			this.inputNode = null;
@@ -60,12 +62,11 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 			s = config.srcNode;
 			if (s !== null && s !== undefined) {
 			    this.inputNode = Y.one(s);
-			    Y.log('inputNode grabbed')
 			    if (this.inputNode !== null) {
                     for (i = 0; i < this.SETTABLE_ATTRS.length; ++i) {
                         s = this.SETTABLE_ATTRS[i]
                         v = this.HTML_PARSER[s](this.inputNode);
-                        Y.log(s + ' is ' + v)
+                        //Y.log(s + ' is ' + v)
                         this.set(s, v);
                     }
 			    }
@@ -85,10 +86,11 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		},
 
 		bindUI : function() {
+			Y.log('in ConstrainedNumericInput.bindUI');
 		    this._bindInputUI();
 		},
 		_bindInputUI : function() {
-			//Y.log('in bindUI');
+			Y.log('in ConstrainedNumericInput._bindInputUI');
 			this.after("valueChange", this._afterValueChange);
 			var boundingBox = this.get("boundingBox"), 
 				keyEventSpec;
@@ -215,7 +217,7 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 		// The e.newVal has already been checked by _validateValue, 
 		// so it should be good (I think).
 		_afterValueChange : function(e) {
-			//Y.log('in _afterValueChange');
+			Y.log('in ConstrainedNumericInput._afterValueChange e.newVal = ' + e.newVal);
 			if (this._uiInvalid) {
 				this.inputNode.setStyle("color", "black");
 				this._uiInvalid = false;
@@ -279,7 +281,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		SLIDER_TEMPLATE : '<span class="horiz_slider"></span>',
 
 		initializer: function(config) {
-            this._inputInitialize(config);
+		    Y.log('JoinedInputSlider.initializer')
             this._afterRangeChange();
 		},
 
@@ -296,6 +298,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 		},
 
 		bindUI : function() {
+			Y.log('in JoinedInputSlider.bindUI');
             var boundingBox = this.get("boundingBox");
 		    this._bindInputUI();
 		    this.slider.after( "valueChange", Y.bind(this._afterSliderChange, this), boundingBox );
@@ -327,7 +330,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			return btn;
 		},
         _afterRangeChange : function() {
-            Y.log('_afterRangeChange max=' + this.get('max') + ' min=' + this.get('min'));
+            //Y.log('_afterRangeChange max=' + this.get('max') + ' min=' + this.get('min'));
             
             this.valueRange = this.get('max') - this.get('min');
 			this.valueChangeThreshold = this.valueRange/this.get('sliderLength');
@@ -357,7 +360,7 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			//Y.log('in _afterSliderChange');
 			var oldValue  = parseFloat(this.get("value")), 
 				nv = this.get('min') + ((e.newVal - this.sliderMin)/this.slider2InputDenom);
-			Y.log('this._afterSliderChange with e.newVal=' + e.newVal + '	 oldValue=' + oldValue + '	nv='+nv);
+			//Y.log('this._afterSliderChange with e.newVal=' + e.newVal + '	 oldValue=' + oldValue + '	nv='+nv);
 			if (Math.abs(oldValue - nv) > this.valueChangeThreshold) {
 				if (nv <= this.get('max') && nv >= this.get('min')) {
 					this.inputNode.setStyle('color', 'black');
@@ -377,8 +380,10 @@ Y.JoinedInputSlider = Y.extend(JoinedInputSlider, ConstrainedNumericInput, {
 			}
 			if (Math.abs(sliderValue - this.slider.get('value')) > this.sliderBinSize) {
                     // Update the Slider on a delay to allow time for typing
+                Y.log('registering later with sliderValue =' + sliderValue);
                 this.slider.wait = Y.later( 20, this.slider, function () {
                         this.wait = null;
+                        Y.log('now is later with sliderValue =' + sliderValue);
                         this.set( "value", sliderValue );
                     });
             }
@@ -415,7 +420,7 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
 		
 	initializer: function(config) {
 			var v;
-			Y.log('InputGroup.initializer ');
+			//Y.log('InputGroup.initializer ');
 			this.labels = config.labels;
 			v = this.get('value');
 			if (Y.Lang.isArray(v)) {
@@ -438,26 +443,29 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
  
 
 	renderUI : function() {
-		Y.log('InputGroup._createInputs');
+		//Y.log('InputGroup._createInputs');
 		var contentBox = this.get("contentBox"),
 		    divNode,
 			i, inpgroupid, v, needToSetSelf = false;
+		v = this.get('value');
+		if (v === null || v === undefined) {
+			v = [];
+		}
 		for (i = 0; i < this.num_elements; ++i) {
             divNode = Y.Node.create(this.GROUP_DIV_TEMPLATE + ' />');
             contentBox.appendChild(divNode);
+            Y.log('InputGroup.renderUI element ' + i);
 			this.inputArray[i] = new this.inputCtor(
 			    {rightLabel : this.labels[i],
 			    max : this.get('max'),
 			    min : this.get('min'),
 			    majorStep : this.get('majorStep'),
-			    minorStep : this.get('minorStep')
+			    minorStep : this.get('minorStep'),
+			    value : v[i]
 			    });
+            Y.log('after new input added for element ' + i);
 			divNode.appendChild(this.inputArray[i]);
 			this.inputArray[i].render(divNode);
-		}
-		v = this.get('value');
-		if (v === null || v === undefined) {
-			v = [];
 		}
 		for (i = 0; i < this.num_elements; ++i) {
 			if (i >= v.length) {
@@ -469,28 +477,37 @@ Y.InputGroup = Y.extend(InputGroup, Y.Widget, {
 			}
 		}
 		this.set('value', v);
+		Y.log('Leaving InputGroup.renderUI with v = ' + v);
 	},
 
 	bindUI : function() {
-		Y.log('in InputGroup.bindUI');
+		//Y.log('in InputGroup.bindUI');
 		var i, f, keyEventSpec;
 		this.after("valueChange", this._afterValueChange);
 		for (i = 0; i < this.inputArray.length; ++i) {
 		    el = this.inputArray[i]
-			f = Y.bind(this._onInputChange, this, i);
 			el.after("valueChange", Y.bind(this._onMemberChange, this, i) );
 		}
-		
+		Y.log('Leaving InputGroup.bindUI with v = ' + this.get('value'));
 	},
     
     _onMemberChange : function(index, e) { 
-        Y.log('_onMemberChange(' + index + ', ' + e.newVal + ')');
+        //Y.log('_onMemberChange(' + index + ', ' + e.newVal + ')');
+        var v = this.get('value'), ov, nv;
+        ov = v[index]
+        nv = e.newVal;
+        if (+ov != +nv) {
+            v[index] = nv;
+            Y.log('InputGroup._onMemberChange(' + index + ', ' + e.newVal + ')')
+            this.set('value', v);
+        }
     },
 	_afterValueChange : function(e) {
 		var v = this.get('value'),
 			i, nv = e.newVal;
 		for (i = 0; i < nv; ++i) {
 			if (+nv[i] != +v[i]) {
+			    Y.log('InputGroup._afterValueChange(' + i + ', ' + e.newVal + ')')
 				this.inputArray[i].set('value', nv[i]);
 			}
 		}

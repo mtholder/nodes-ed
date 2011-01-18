@@ -25,7 +25,8 @@ YUI().use(	'event',
     var d = Y.one('#example');
 
     // instantiation
-    var first = new Y.InputGroup({labels : ['one', 'two', 'three']});
+    var first = new Y.InputGroup({labels : ['one', 'two', 'three'],
+                                  value : [3, 2.5, 1]});
     d.append(first);
     first.render(d);
     
@@ -35,6 +36,24 @@ YUI().use(	'event',
         Y.log('after first. valueChanged event. Value is now: ' + v + ' from get=' + first.get('value'));
     });
 
+
+    // instantiation
+    var second = new Y.InputGroup({labels : ['os', 'tws', 'ths'],
+                                  value : [3, 2.5, 1],
+                                  inputCtor : Y.JoinedInputSlider,
+                                  max : 10,
+                                  min : 0});
+    Y.log('second created with value = ' + second.get('value'));
+    d.append(second);
+    second.render(d);
+    Y.log('second rendered with value = ' + second.get('value'));
+    /*
+    // instantiation
+    second.after('valueChange', function (e) {
+        var v = +e.newVal;
+        Y.log('after second. valueChanged event. Value is now: ' + v + ' from get=' + second.get('value'));
+    });
+*/
   
 });
 </script>
