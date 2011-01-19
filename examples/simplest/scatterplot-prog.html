@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Scatterplot programmatic</title>
+<!--begin custom header content for this example-->
+<link rel="stylesheet" href="../../../yui3/build/cssfonts/fonts-min.css" type="text/css">
+<script type="text/javascript" src="../../../yui3/build/yui/yui-debug.js"></script>
+<script type="text/javascript" src="../../src/js/util.js"></script>
+<script type="text/javascript" src="../../src/grouped-histogram/grouped-histogram-debug.js"></script>
+</head>
+<body class="yui3-skin-sam	yui-skin-sam">
+<h1>Scatterplot programmatic</h1>
+<p>Scatterplot - is actually a generic plotter (lines or points).</p>
+<div id="example"></div>
+<div id="testLogger"></div>
+<script type="text/javascript">
+YUI().use(	'event',
+            'event-focus', 
+            'node', 
+            'console',
+            'numeric-input',
+            'grouped-histogram',
+             function (Y) {
+    // preamble
+    new Y.Console({height : 900}).render();						
+    var d = Y.one('#example');
+
+    // instantiation
+    var first = new Y.RescalingScatterplot();
+    d.append(first);
+    first.render(d);
+    first.addElement({type : 'line', valueX1 : 0, valueY1 : 0, 
+                                     valueX2 : 1, valueY2 : 1});
+    first.addElement({type : 'line', valueX1 : 1, valueY1 : 1, 
+                                     valueX2 : 1, valueY2 : -1}, false);
+  
+});
+</script>
+</body>
+</html>
