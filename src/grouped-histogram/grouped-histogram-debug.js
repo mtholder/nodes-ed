@@ -3,7 +3,6 @@ function RescalingScatterplot(config) {
 	RescalingScatterplot.superclass.constructor.apply(this, arguments);
 }
 
-
 Y.RescalingScatterplot = Y.extend(RescalingScatterplot, Y.Widget, {
 		// identifies the classname applied to the value field
 		CANVAS_CLASS : Y.ClassNameManager.getClassName('RescalingScatterplotCanvas'),
@@ -407,7 +406,7 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 				g, i,
 				j,currWidthOffset, widthOffset, heightOffset, 
 				groupWidthOffset, c, categoryLabels, dim, label,
-				propGraph = 0.88;
+				propGraph = 0.82;
 			Y.log('GroupedHistogram._paint()');
 			this.canvasContext.clearRect(0, 0, this.canvasDOMNd.width, this.canvasDOMNd.height);
 			
@@ -450,7 +449,7 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 			categoryLabels = this.get('categoryLabels');
 			
 			if ((!NdEjs.isNone(categoryLabels)) && categoryLabels.length > 0) {
-				widthOffset = (this.groupsValueArray.length + 1.5)*this.barWidth/2.0;
+				widthOffset = (this.groupsValueArray.length + 2)*this.barWidth/2.0;
 				heightOffset = 0.0;
 				this.canvasContext.fillStyle = "#000000";
 				for (i = 0; i < this.numCategories; ++i) {
