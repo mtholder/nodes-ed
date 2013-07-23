@@ -64,8 +64,8 @@ Release-mode includes -->
 <body class="yui3-skin-sam	yui-skin-sam">
 <div id="doc" class="yui-t7">
 <div id="hd" role="banner"><h1>Visualization of the likelihood of phylogenetic trees</h1></div>
-<div id="panelbrowser"><label>Show:</label></div>
-
+<div id="panelbrowser"><label>Show: </label></div>
+<div id="dataimporter"></div>
 <div id="bd" role="main">
 	<div class="yui-g">
 		<div class="yui-u first">
@@ -183,15 +183,23 @@ if (DEBUGGING) {
 	
 	var Button = Y.YUI2.widget.Button;
 	var createShowHide = function (config) {
-		var b, 
-			toControl = config.toControl,
-			f = config.callback;
+		var b;
+		var toControl = config.toControl;
+		var f = config.callback;
+		var v, c;
+		if (config.checked === undefined || config.checked) {
+			v = "1";
+			c = true;
+		} else {
+			v = "0";
+			c = false;
+		}
 		b = new Button({
 					type: "checkbox",
 					label: config.label,
 					id: "checkbutton" + config.idtag,
 					name: "checkbox" + config.idtag,
-					value: "1", 
+					value: v, 
 					container: config.container, 
 					onclick : {fn : function (e) {
 									if (e.target.checked) {
@@ -204,15 +212,17 @@ if (DEBUGGING) {
 										f(e.target.checked);
 									}
 									e.target.checked = ! e.target.checked;
-									
 								}
 							},
-					checked : true
+					checked : c
 				});
+		if (!c) {
+			toControl.hide();
+		}
 		return b;
 	}
 	var container = 'panelbrowser';
-	var oCheckButton10 = createShowHide({label :	"Data counts",
+	var oCheckButtonData = createShowHide({label : "Data counts",
 										idtag : 'dataMatrix', 
 										container : container,
 										toControl : dataMatrixDiv,
@@ -221,12 +231,12 @@ if (DEBUGGING) {
 												ppPanel._paint();
 											}
 										});
-	var oCheckButton9 = createShowHide({label : "Pattern Probs",
+	var oCheckButtonPat = createShowHide({label : "Pattern Probs",
 										idtag : 'patprob',
 										container : container,
 										toControl : ppPanelDiv});
 	thediv = Y.one('#treeABDiv');
-	var oCheckButton10 = createShowHide({label :	"AB | CD",
+	var oCheckButtonAB = createShowHide({label :	"Tree AB | CD",
 										idtag : 'ab', 
 										container : container,
 										toControl : thediv,
@@ -236,28 +246,28 @@ if (DEBUGGING) {
 											}
 										});
 	thediv = Y.one('#treeACDiv');
-	var oCheckButton11 = createShowHide({label : "AC | BD",
+	var acClickFn = function (v) {
+		ppPanel.showGroup[treeCalcOffset + 1] = v;
+		ppPanel._paint();
+	};
+	var oCheckButtonAC = createShowHide({label : "Tree AC | BD",
 										 idtag : 'ac',
 										 container :  container,
 										 toControl :  thediv,
-										 callback : function (v) {
-												ppPanel.showGroup[treeCalcOffset + 1] = v;
-												ppPanel._paint();
-											}
-										 });
+										 callback : acClickFn,
+										 checked: true
+										});
 	thediv = Y.one('#treeADDiv');
-	var oCheckButton12 = createShowHide({label : "AD | BC",
+	var oCheckButtonAD = createShowHide({label : "Tree AD | BC",
 										idtag : 'ad',
 										container :	 container,
 										toControl : thediv,
 										callback : function (v) {
 												ppPanel.showGroup[treeCalcOffset + 2] = v;
 												ppPanel._paint();
-											}
-
-										})
-	
-	
+											},
+										checked: true
+										});
 	return;
 }
 );
