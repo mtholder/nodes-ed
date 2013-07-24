@@ -238,7 +238,7 @@ Y.ConstrainedNumericInput = Y.extend(ConstrainedNumericInput, Y.Widget, {
 				sliderValue;
 			nNodeV = +nodeV;
 			Y.log('in _uiSetValue(' + val + ') nodeV=' + nodeV + ' as number (' + (nNodeV) + ')');
-			if ((nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > this.valueChangeThreshold) {
+			if ((nodeV === "") || (nNodeV !== nNodeV) || Math.abs(nVal - +nodeV) > this.valueChangeThreshold) {
 				this.inputNode.set("value", nVal.toFixed(9).replace(/0+$/, '0'));
 			}
 		},

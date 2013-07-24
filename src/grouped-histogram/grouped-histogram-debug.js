@@ -323,12 +323,18 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 			this.canvasDOMNd = Y.Node.getDOMNode(this.canvasNd);
 			this.canvasContext = this.canvasDOMNd.getContext("2d");
 			this.canvasContext.font = "bold 12pt fixed-width";
-			for (i = 0; i < this.groupsArray.length; ++i) {
-				this._afterGroupValueChanged(i, {newVal : this.groupsArray[i].get('value')});
-			}
+			this._refreshVals();
 			this.canvasContext.font = "bold 12pt fixed-width";
-		  },
-		  
+		},
+		_refreshVals : function() {
+			for (i = 0; i < this.groupsArray.length; ++i) {
+				this._afterGroupValueChanged(i, {newVal : [this.groupsArray[i].get('value')]});
+			}
+		},
+		refresh : function() {
+			this._refreshVals();
+			this._paint();
+		},
 		_defaultCB : function() {
 			return null;
 		},

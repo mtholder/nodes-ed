@@ -54,10 +54,6 @@ Release-mode includes -->
 		margin-left: 2ex;
 		margin-right: 2ex;
 	}
-
-
-
-
 </style>
 </head>
 
@@ -71,11 +67,11 @@ Release-mode includes -->
 	<div class="yui-g">
 		<div class="yui-u first">
 			<div id="dataImporter">
-				<label>Paste FASTA below</label><textarea rows="8" cols="60" id="dataImporterTextBox"></textarea>
+				<label>Paste FASTA below</label><textarea rows="8" cols="40" id="dataImporterTextBox"></textarea>
 			</div>
 		</div>
 		<div class="yui-u">
-			<div id="unused">
+			<div id="fillButton">
 			</div>
 		</div>
 	</div>
@@ -253,7 +249,7 @@ if (DEBUGGING) {
 		}
 	}
 
-	var parseFastaFromDataImporter = function (){
+	var parseFirst4FromFastaFromDataImporter = function (){
 		var tb = document.getElementById("dataImporterTextBox");
 		var contents = tb.value;
 		var i, j, lineArray, line;
@@ -371,24 +367,33 @@ if (DEBUGGING) {
 	
 	var container = 'controls';
 	var dataImporterDiv = Y.one('#dataImporter');
+	var fillButtonDiv = Y.one("#fillButton");
 	var toggleDataImportButton = function(v) {
+		var ii;
 		if (buttonArray.length > 0) {
 			if (v) {
+				fillButtonDiv.show();
 				buttonArray[0].set("label", "Parse the data");
 			} else {
-				patternCounts = parseFastaFromDataImporter();
+				fillButtonDiv.hide();
+				patternCounts = parseFirst4FromFastaFromDataImporter();
 				if (patternCounts) {
 					vig.set("value", patternCounts);
-					for (var i = 0; i < 8; ++i) {
-						vig.inputArray[i].set("value", patternCounts[i]);
+					var normalized = dataPatternFreq._calculateNormalized(patternCounts);
+					dataPatternFreq._onSetValue({newVal: normalized});
+					for (ii = 0; ii < 8; ++ii) {
+						var c = patternCounts[ii];
+						var inp = vig.inputArray[ii];
+						inp._inputUISetValue(c);
 					}
+					//ppPanel.refresh();
 				}
 				buttonArray[0].set("label", "Show Data Import");
 			}
 		}
 	};
-	var importWidget = createShowHide({ type: "push",
-										label : "Show Data Import",
+
+	var importWidget = createShowHide({ label : "Show Data Import",
 										idtag : 'dataImporter', 
 										container : container,
 										toControl : dataImporterDiv,
@@ -397,6 +402,20 @@ if (DEBUGGING) {
 	buttonArray[0] = importWidget;
 	dataImporterDiv.hide();
 	importWidget.set("checked", false);
+	var hcgoDataButton = new Button({
+					type: "push",
+					label: "Fill with Human, Chimp, Gorilla, Orangutan Data",
+					id: "checkbuttonFillHCGO",
+					name: "checkboxFillHCGO",
+					container: "fillButton", 
+					onclick : 	{fn : function(e) {
+									var tb = document.getElementById("dataImporterTextBox");
+									tb.value = HPGOData;
+									}
+								}
+					});
+	fillButtonDiv.hide();
+
 
 	container = 'panelbrowser';
 	var oCheckButtonData = createShowHide({label : "Data counts",
