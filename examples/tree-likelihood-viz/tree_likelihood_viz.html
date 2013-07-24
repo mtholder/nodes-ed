@@ -374,8 +374,11 @@ if (DEBUGGING) {
 				buttonArray[0].set("label", "Parse the data");
 			} else {
 				patternCounts = parseFastaFromDataImporter();
-				if (patternCounts !== null) {
-					
+				if (patternCounts) {
+					vig.set("value", patternCounts);
+					for (var i = 0; i < 8; ++i) {
+						vig.inputArray[i].set("value", patternCounts[i]);
+					}
 				}
 				buttonArray[0].set("label", "Show Data Import");
 			}
