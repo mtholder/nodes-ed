@@ -1,20 +1,18 @@
-YUI.add('four-leaf-tree-like-calculator', function(Y) { //AUTOMATICALLY-PRUNE
+YUI.add('four-leaf-tree-calculator', function(Y) { //AUTOMATICALLY-PRUNE
 
 
 
-function FourLeafTreeLikeCalculator(config) {
-	FourLeafTreeLikeCalculator.superclass.constructor.apply(this, arguments);
+function FourLeafTreeCalculator(config) {
+	FourLeafTreeCalculator.superclass.constructor.apply(this, arguments);
 }
 
-Y.FourLeafTreeLikeCalculator = Y.extend(FourLeafTreeLikeCalculator, Y.Base, {
+Y.FourLeafTreeCalculator = Y.extend(FourLeafTreeCalculator, Y.Base, {
 
 	initializer : function(config) {
-		Y.log('FourLeafTreeLikeCalculator.initializer ');
+		Y.log('FourLeafTreeCalculator.initializer ');
 		this.topoIndex = config.topoIndex;
 		this.name = config.name;
-		this.edgeLenContainer = config.edgeLenContainer;
-		this.patternProbCalculator = config.patternProbCalculator;
-		this.dataPatternFreq = config.dataPatternFreq;
+	
 		this.leafUpLeftIndex = 0;
 		if (this.topoIndex == 1) { // AC|BD
 			this.leafUpRightIndex = 1;
@@ -138,7 +136,7 @@ Y.FourLeafTreeLikeCalculator = Y.extend(FourLeafTreeLikeCalculator, Y.Base, {
 		return (Math.abs(1.0 - s) < 1e-6);
   } 
 }, {
-	NAME :	"fourLeafTreeLikeCalculator", // required for Widget classes and used as event prefix
+	NAME :	"fourLeafTreeCalculator", // required for Widget classes and used as event prefix
 	ATTRS : {
 		value : { value : null,
 				  validator : function (val) {

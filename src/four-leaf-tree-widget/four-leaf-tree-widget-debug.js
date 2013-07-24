@@ -22,7 +22,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				this.leafUpRightIndex = 1;
 				this.leafDownLeftIndex = 2;
 				this.leafDownRightIndex = 3;
-				this.set('color', "#FF5555");
+				this.set('color', "#00DD00");
 			}
 			else if (this.treeIndex == 2) {
 				this.leafUpRightIndex = 1;
@@ -34,7 +34,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				this.leafUpRightIndex = 2;
 				this.leafDownLeftIndex = 1;
 				this.leafDownRightIndex = 3;
-				this.set('color', "#00DD00");
+				this.set('color', "#AAAAAA");
 			}
 			this.internalIndex = 4; // this is the same for all three trees
 			

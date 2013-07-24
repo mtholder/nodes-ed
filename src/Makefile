@@ -1,7 +1,8 @@
 DIRS = four-leaf-tree-widget \
 	four-leaf-tree-calculator \
 	grouped-histogram \
-	numeric-input 
+	numeric-input \
+	four-leaf-tree-like-calculator
 
 .PHONY: all clean $(DIRS) installexamples
 
