@@ -415,6 +415,19 @@ if (DEBUGGING) {
 								}
 					});
 	fillButtonDiv.hide();
+	var hmstDataButton = new Button({
+					type: "push",
+					label: "Fill with Human, Macaque, Sq. Monkey, Tarsier",
+					id: "checkbuttonFillHCGO",
+					name: "checkboxFillHCGO",
+					container: "fillButton", 
+					onclick : 	{fn : function(e) {
+									var tb = document.getElementById("dataImporterTextBox");
+									tb.value = HMSTData;
+									}
+								}
+					});
+	fillButtonDiv.hide();
 
 
 	container = 'panelbrowser';
