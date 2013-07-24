@@ -51,7 +51,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			
 			this._edgeLenToPlot = [];
 			this.edgeLenValueSource = null;
-				
+			this.paint_listeners = []
 		},
 
 		destructor : function() {
@@ -110,8 +110,14 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 		},
 			  
 		_paint : function () {
+			var i;
 			this._updateEdgeLengthsFromInput();
 			this._paintFromCachedVals();
+			if (this.paint_listeners) {
+				for (i = 0; i < this.paint_listeners.length; ++i) {
+					this.paint_listeners(this._edgeLenToPlot);
+				}
+			}
 		},
 
 		_updateEdgeLengthsFromInput : function() {
@@ -121,13 +127,13 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				changedVal = false,
 				ev = null;
 			if (this.edgeLenValueSource) {
-			    ev = this.edgeLenValueSource.get('value');
+				ev = this.edgeLenValueSource.get('value');
 				for (i = 0; i < ev.length; ++i) {
-                    nv = +ev[i];
-                    if (nv != this._edgeLenToPlot[i]) {
-                        this._edgeLenToPlot[i] = nv;
-                        changedVal = true;
-                    }
+					nv = +ev[i];
+					if (nv != this._edgeLenToPlot[i]) {
+						this._edgeLenToPlot[i] = nv;
+						changedVal = true;
+					}
 				}
 			}
 			if (changedVal) {
@@ -135,7 +141,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			}
 		},
 	
-		_paintFromCachedVals : function () {			
+		_paintFromCachedVals : function () {            
 			this._calcCoordinates();
 			this._repaintFromCoordinates();
 		},
@@ -203,11 +209,11 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			cnvsWidth = this.canvasDOMNd.width;
 			cnvsHeight = this.canvasDOMNd.height;
 			// denominator in Y is:
-			//		a factor of 2.0 because we want room for 2 branches and labels (and the branches will be at 45-degrees)
-			//		times  0.5 because the max branch length is 0.5
+			//      a factor of 2.0 because we want room for 2 branches and labels (and the branches will be at 45-degrees)
+			//      times  0.5 because the max branch length is 0.5
 			yScaler = cnvsHeight/(2.0*0.5); 
 			// denominator in X has a 3.0 because we plot the internal horizontally,
-			//		so the graph could be three edges wide.
+			//      so the graph could be three edges wide.
 			xScaler = cnvsWidth/(3.0*0.5); 
 			
 
@@ -218,7 +224,7 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			this.rightIntX = this.leftIntX + xScaler*(v[this.internalIndex]);
 			this.rightIntY = this.leftIntY;
 			// all other nodes are off at 45 degree angles, so we can deal with this
-			//	 by rescaling our scalers...
+			//   by rescaling our scalers...
 			yScaler /= this.Y_ANGLE_MULTIPLIER;
 			xScaler /= this.X_ANGLE_MULTIPLIER;
 
@@ -264,11 +270,11 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 				return;
 			}
 			if (this.edgeLenValueSource) {
-			    ev = this.edgeLenValueSource.get('value');
+				ev = this.edgeLenValueSource.get('value');
 				for (i = 0; (i < val.length && i < 5) ; ++i ) {
 					if ((!ev) || Math.abs(+val[i] - +ev[i]) > 1e-7) {
-					    this.edgeLenValueSource.set('value', val);
-					    break;
+						this.edgeLenValueSource.set('value', val);
+						break;
 					}
 				}
 			}
@@ -303,11 +309,11 @@ Y.FourLeafTreeCanvas = Y.extend(FourLeafTreeCanvas, Y.Widget, {
 			return true;
 	  }
 	}, {
-	NAME :	"fourLeafTreeCanvas", // required for Widget classes and used as event prefix
+	NAME :  "fourLeafTreeCanvas", // required for Widget classes and used as event prefix
 
 	ATTRS : {
-		min :	{ value : 0.0 }, // min branch length
-		max :	{ value : Infinity}, // max branch length
+		min :   { value : 0.0 }, // min branch length
+		max :   { value : Infinity}, // max branch length
 		value : { value : null,
 				  validator : function(val) {
 						return this._validateValue(val);
@@ -407,26 +413,26 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 		_createInputs : function() {
 			Y.log('FourLeafTreeWidget._createInputs');
 			var contentBox = this.get("contentBox"),
- 				i, labels = [];
+				i, labels = [];
 			if (this.inputGroup) {
-			    return;
+				return;
 			}
-            for (i = 0; i < this.edgeNameArray.length; ++i) {
-                labels[i] = ' Edge: ' + this.edgeNameArray[i];
-            }
-            v = this.get('value');
-            this.inputGroup = new Y.InputGroup({max : 0.5,
-                                     min : 0.0,
-                                     value : (this._validateValue(v) && v) || [0.05, 0.05, 0.05, 0.05, 0.05],
-                                     minorStep : 0.0001,
-                                     majorStep : 0.01,
-                                     inputCtor : Y.JoinedInputSlider,
-                                     labels : labels
-                                     });
-            contentBox.appendChild(this.inputGroup);
-            if (this.treeCanvas) {
-                this.treeCanvas.edgeLenValueSource = this.inputGroup;
-            }
+			for (i = 0; i < this.edgeNameArray.length; ++i) {
+				labels[i] = ' Edge: ' + this.edgeNameArray[i];
+			}
+			v = this.get('value');
+			this.inputGroup = new Y.InputGroup({max : 0.5,
+									 min : 0.0,
+									 value : (this._validateValue(v) && v) || [0.05, 0.05, 0.05, 0.05, 0.05],
+									 minorStep : 0.0001,
+									 majorStep : 0.01,
+									 inputCtor : Y.JoinedInputSlider,
+									 labels : labels
+									 });
+			contentBox.appendChild(this.inputGroup);
+			if (this.treeCanvas) {
+				this.treeCanvas.edgeLenValueSource = this.inputGroup;
+			}
 		},
 
 		_createCanvas : function () {
@@ -502,11 +508,11 @@ Y.FourLeafTreeWidget = Y.extend(FourLeafTreeWidget, Y.Widget, {
 			return true;
 	  }
 	}, {
-	NAME :	"fourLeafTreeWidget", // required for Widget classes and used as event prefix
+	NAME :  "fourLeafTreeWidget", // required for Widget classes and used as event prefix
 
 	ATTRS : {
-		min :	{ value : 0.0 }, // min branch length
-		max :	{ value : Infinity}, // max branch length
+		min :   { value : 0.0 }, // min branch length
+		max :   { value : Infinity}, // max branch length
 		value : { value : null,
 				  validator : function(val) {
 						return this._validateValue(val);
