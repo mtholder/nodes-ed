@@ -328,7 +328,7 @@ Y.GroupedHistogram = Y.extend(GroupedHistogram, Y.Widget, {
 		},
 		_refreshVals : function() {
 			for (i = 0; i < this.groupsArray.length; ++i) {
-				this._afterGroupValueChanged(i, {newVal : [this.groupsArray[i].get('value')});
+				this._afterGroupValueChanged(i, {newVal : [this.groupsArray[i].get('value')]});
 			}
 		},
 		refresh : function() {
